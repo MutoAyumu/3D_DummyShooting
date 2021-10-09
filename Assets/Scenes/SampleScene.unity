@@ -426,6 +426,7 @@ MonoBehaviour:
   m_minY: -0.25
   m_maxY: 0.25
   m_speed: 3
+  m_dashSpeed: 5
 --- !u!1 &427652898
 GameObject:
   m_ObjectHideFlags: 0
@@ -699,9 +700,10 @@ MonoBehaviour:
   m_player: {fileID: 846737807}
   m_pivot: {fileID: 2028438323}
   m_cam: {fileID: 963194227}
-  m_minY: -0.25
-  m_maxY: 0.25
-  m_speed: 5
+  m_minY: -0.3
+  m_maxY: 0.3
+  m_speed: 3
+  m_dashSpeed: 7
 --- !u!4 &846737807 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 91537696499146005, guid: 8526fc62d267e704aabe14dd3ca9d7ed,
@@ -816,7 +818,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.09853763, y: -0, z: -0, w: 0.99513334}
-  m_LocalPosition: {x: 0, y: 1, z: -5}
+  m_LocalPosition: {x: 0, y: 1, z: -3.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2028438323}
