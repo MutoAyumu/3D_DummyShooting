@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
 
     float m_h;
     float m_v;
+    float a = 0;
     Quaternion m_rotation;
     [SerializeField] int m_speed = 3;
     [SerializeField] int m_dashSpeed = 5;
@@ -48,10 +49,14 @@ public class PlayerController : MonoBehaviour
         if(Input.GetButton("Shift") && m_v > 0)
         {
             m_currentSpeed = m_dashSpeed;
+            a = 1;
+            m_anim.SetBool("Run", true);
         }
         else
         {
             m_currentSpeed = m_speed;
+            a = 0;
+            m_anim.SetBool("Run", false);
         }
 
         if (Input.GetButtonDown("Cancel"))
@@ -100,52 +105,54 @@ public class PlayerController : MonoBehaviour
         Vector3 move = m_rotation * new Vector3(m_h, 0, m_v).normalized;
         m_rb.velocity = move * m_currentSpeed;
 
-        if(m_v == 0 && m_h == 0)
-        {
-            m_anim.SetBool("Run", false);
-            m_anim.SetBool("Back", false);
-            m_anim.SetBool("Right", false);
-            m_anim.SetBool("Left", false);
-            m_anim.SetInteger("Speed", 0);
-        }
-        else if(m_v > 0 && m_currentSpeed == m_dashSpeed)
-        {
-            m_anim.SetBool("Right", false);
-            m_anim.SetBool("Left", false);
-            m_anim.SetBool("Run", true);
-            m_anim.SetInteger("Speed", m_currentSpeed);
-        }
-        else if (m_v > 0 && m_currentSpeed == m_speed)
-        {
-            m_anim.SetBool("Right", false);
-            m_anim.SetBool("Left", false);
-            m_anim.SetBool("Run", true);
-            m_anim.SetInteger("Speed", m_currentSpeed);
-        }
-        else if(m_h > 0 && m_v == 0)
-        {
-            m_anim.SetBool("Run", false);
-            m_anim.SetBool("Back", false);
-            m_anim.SetBool("Left", false);
-            m_anim.SetInteger("Speed", 0);
-            m_anim.SetBool("Right", true);
-        }
-        else if(m_h < 0 && m_v == 0)
-        {
-            m_anim.SetBool("Run", false);
-            m_anim.SetBool("Back", false);
-            m_anim.SetBool("Right", false);
-            m_anim.SetInteger("Speed", 0);
-            m_anim.SetBool("Left", true);
-        }
-        else
-        {
-            m_anim.SetBool("Run", false);
-            m_anim.SetBool("Back", false);
-            m_anim.SetBool("Right", false);
-            m_anim.SetBool("Left", false);
-            m_anim.SetInteger("Speed", 0);
-            m_anim.SetBool("Back", true);
-        }
+        //if(m_v == 0 && m_h == 0)
+        //{
+        //    m_anim.SetBool("Run", false);
+        //    m_anim.SetBool("Back", false);
+        //    m_anim.SetBool("Right", false);
+        //    m_anim.SetBool("Left", false);
+        //    m_anim.SetInteger("Speed", 0);
+        //}
+        //else if(m_v > 0 && m_currentSpeed == m_dashSpeed)
+        //{
+        //    m_anim.SetBool("Right", false);
+        //    m_anim.SetBool("Left", false);
+        //    m_anim.SetBool("Run", true);
+        //    m_anim.SetInteger("Speed", m_currentSpeed);
+        //}
+        //else if (m_v > 0 && m_currentSpeed == m_speed)
+        //{
+        //    m_anim.SetBool("Right", false);
+        //    m_anim.SetBool("Left", false);
+        //    m_anim.SetBool("Run", true);
+        //    m_anim.SetInteger("Speed", m_currentSpeed);
+        //}
+        //else if(m_h > 0 && m_v == 0)
+        //{
+        //    m_anim.SetBool("Run", false);
+        //    m_anim.SetBool("Back", false);
+        //    m_anim.SetBool("Left", false);
+        //    m_anim.SetInteger("Speed", 0);
+        //    m_anim.SetBool("Right", true);
+        //}
+        //else if(m_h < 0 && m_v == 0)
+        //{
+        //    m_anim.SetBool("Run", false);
+        //    m_anim.SetBool("Back", false);
+        //    m_anim.SetBool("Right", false);
+        //    m_anim.SetInteger("Speed", 0);
+        //    m_anim.SetBool("Left", true);
+        //}
+        //else
+        //{
+        //    m_anim.SetBool("Run", false);
+        //    m_anim.SetBool("Back", false);
+        //    m_anim.SetBool("Right", false);
+        //    m_anim.SetBool("Left", false);
+        //    m_anim.SetInteger("Speed", 0);
+        //    m_anim.SetBool("Back", true);
+        //}
+        m_anim.SetFloat("X", m_h);
+        m_anim.SetFloat("Y", m_v + a);
     }
 }
