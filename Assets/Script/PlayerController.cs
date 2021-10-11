@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-
+        
         m_rotation = Quaternion.AngleAxis(m_cam.transform.eulerAngles.y, Vector3.up);
         Vector3 move = m_rotation * new Vector3(m_h, 0, m_v).normalized;
         m_rb.velocity = move * m_currentSpeed;
