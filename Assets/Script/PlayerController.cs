@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
 
     float m_h;
     float m_v;
-    float a = 0;
+    float m_dash = 0;
     Quaternion m_rotation;
     [SerializeField] int m_speed = 3;
     [SerializeField] int m_dashSpeed = 5;
@@ -49,13 +49,13 @@ public class PlayerController : MonoBehaviour
         if(Input.GetButton("Shift") && m_v > 0)
         {
             m_currentSpeed = m_dashSpeed;
-            a = 1;
+            m_dash = 1;
             m_anim.SetBool("Run", true);
         }
         else
         {
             m_currentSpeed = m_speed;
-            a = 0;
+            m_dash = 0;
             m_anim.SetBool("Run", false);
         }
 
@@ -75,17 +75,17 @@ public class PlayerController : MonoBehaviour
         m_Angle = m_pivot.localRotation.x;
         m_player.transform.Rotate(0, m_y, 0);
 
-        if (m_x != 0.5f)
+        if (m_x != 0)
         {
-            if (0.5f < m_x)
+            if (0 <= -m_x)
             {
-                if(m_minY >= m_pivot.transform.localRotation.x)
+                if(m_minY >= m_Angle)
                 {
                     return;
                 }
-                else if (m_minY <= m_pivot.transform.localRotation.x)
+                else if (m_minY <= m_Angle)
                 {
-                    m_pivot.transform.Rotate(-m_x, 0, 0);
+                    m_pivot.transform.Rotate(m_x, 0, 0);
                 }
             }
             else
@@ -96,63 +96,25 @@ public class PlayerController : MonoBehaviour
                 }
                 else if (m_Angle <= m_maxY)
                 {
-                    m_pivot.transform.Rotate(-m_x, 0, 0);
+                    m_pivot.transform.Rotate(m_x, 0, 0);
                 }
             }
         }
-        
-        m_rotation = Quaternion.AngleAxis(m_cam.transform.eulerAngles.y, Vector3.up);
-        Vector3 move = m_rotation * new Vector3(m_h, 0, m_v).normalized;
-        m_rb.velocity = move * m_currentSpeed;
 
-        //if(m_v == 0 && m_h == 0)
-        //{
-        //    m_anim.SetBool("Run", false);
-        //    m_anim.SetBool("Back", false);
-        //    m_anim.SetBool("Right", false);
-        //    m_anim.SetBool("Left", false);
-        //    m_anim.SetInteger("Speed", 0);
-        //}
-        //else if(m_v > 0 && m_currentSpeed == m_dashSpeed)
-        //{
-        //    m_anim.SetBool("Right", false);
-        //    m_anim.SetBool("Left", false);
-        //    m_anim.SetBool("Run", true);
-        //    m_anim.SetInteger("Speed", m_currentSpeed);
-        //}
-        //else if (m_v > 0 && m_currentSpeed == m_speed)
-        //{
-        //    m_anim.SetBool("Right", false);
-        //    m_anim.SetBool("Left", false);
-        //    m_anim.SetBool("Run", true);
-        //    m_anim.SetInteger("Speed", m_currentSpeed);
-        //}
-        //else if(m_h > 0 && m_v == 0)
-        //{
-        //    m_anim.SetBool("Run", false);
-        //    m_anim.SetBool("Back", false);
-        //    m_anim.SetBool("Left", false);
-        //    m_anim.SetInteger("Speed", 0);
-        //    m_anim.SetBool("Right", true);
-        //}
-        //else if(m_h < 0 && m_v == 0)
-        //{
-        //    m_anim.SetBool("Run", false);
-        //    m_anim.SetBool("Back", false);
-        //    m_anim.SetBool("Right", false);
-        //    m_anim.SetInteger("Speed", 0);
-        //    m_anim.SetBool("Left", true);
-        //}
-        //else
-        //{
-        //    m_anim.SetBool("Run", false);
-        //    m_anim.SetBool("Back", false);
-        //    m_anim.SetBool("Right", false);
-        //    m_anim.SetBool("Left", false);
-        //    m_anim.SetInteger("Speed", 0);
-        //    m_anim.SetBool("Back", true);
-        //}
+        //m_rotation = Quaternion.AngleAxis(m_cam.transform.eulerAngles.y, Vector3.up);
+        //Vector3 move = m_rotation * new Vector3(m_h, 0, m_v).normalized;
+        //m_rb.velocity = move * m_currentSpeed;
+
+        Vector3 move = new Vector3(m_h, 0, m_v);
+        // m_pivotのローカル座標系を基準に dir を変換する
+        move = m_pivot.transform.TransformDirection(move.normalized);
+        // m_pivotは斜め下に向いているので、Y 軸の値を 0 にして「XZ 平面上のベクトル」にする
+        move.y = 0;
+        move.y = -1;
+        // 移動の入力がない時は回転させない。入力がある時はその方向にキャラクターを向ける。
+        m_rb.velocity = move.normalized * m_currentSpeed;
+
         m_anim.SetFloat("X", m_h);
-        m_anim.SetFloat("Y", m_v + a);
+        m_anim.SetFloat("Y", m_v + m_dash);
     }
 }
