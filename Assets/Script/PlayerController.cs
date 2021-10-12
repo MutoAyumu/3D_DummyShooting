@@ -49,14 +49,12 @@ public class PlayerController : MonoBehaviour
         if(Input.GetButton("Shift") && m_v > 0)
         {
             m_currentSpeed = m_dashSpeed;
-            m_dash = 1;
-            m_anim.SetBool("Run", true);
+            m_anim.SetBool("Dush", true);
         }
         else
         {
             m_currentSpeed = m_speed;
-            m_dash = 0;
-            m_anim.SetBool("Run", false);
+            m_anim.SetBool("Dush", false);
         }
 
         if (Input.GetButtonDown("Cancel"))
@@ -115,6 +113,6 @@ public class PlayerController : MonoBehaviour
         m_rb.velocity = move.normalized * m_currentSpeed;
 
         m_anim.SetFloat("X", m_h);
-        m_anim.SetFloat("Y", m_v + m_dash);
+        m_anim.SetFloat("Y", m_v);
     }
 }
