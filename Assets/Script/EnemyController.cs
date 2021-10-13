@@ -7,6 +7,10 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Animator))]
 public class EnemyController : MonoBehaviour
 {
+    Rigidbody m_rb;
+    Animator m_anim;
+    CapsuleCollider m_collider;
+
     [Header("HP")]
     [SerializeField, Tooltip("HPの値")] float m_hp = 3f;
     float m_currentHp;
@@ -17,6 +21,9 @@ public class EnemyController : MonoBehaviour
 
     private void Start()
     {
+        m_rb = GetComponent<Rigidbody>();
+        m_anim = GetComponent<Animator>();
+        m_collider = GetComponent<CapsuleCollider>();
         m_currentHp = m_hp;
         m_hpSlider.value = 1;
     }
@@ -30,10 +37,22 @@ public class EnemyController : MonoBehaviour
     }
     public void TakeDamage(float damage)
     {
-        if (m_currentHp >= 0)
+        if (m_currentHp > 1)
         {
+            Debug.Log("hit");
             m_currentHp -= damage;
-            m_hpSlider.value = m_currentHp / 1;
+            m_hpSlider.value = m_currentHp / m_hp;
+            m_anim.SetTrigger("TakeDamage");
+        }
+        else
+        {
+            Debug.Log("Death");
+            m_currentHp -= damage;
+            m_hpSlider.value = m_currentHp / m_hp;
+            m_anim.SetTrigger("Death");
+            m_collider.enabled = false;
+            m_rb.useGravity = false;
+            m_rb.isKinematic = true;
         }
     }
 }

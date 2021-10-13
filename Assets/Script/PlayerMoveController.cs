@@ -40,8 +40,8 @@ public class PlayerMoveController : MonoBehaviour
     void InputMove()
     {
         //移動入力の取得
-        m_h = Input.GetAxis("Horizontal");
-        m_v = Input.GetAxis("Vertical");
+        m_h = Input.GetAxisRaw("Horizontal");
+        m_v = Input.GetAxisRaw("Vertical");
         m_move = new Vector3(m_h, 0, m_v).normalized;
 
         if(Input.GetButton("Shift") && (m_h != 0 || m_v != 0))
@@ -71,7 +71,7 @@ public class PlayerMoveController : MonoBehaviour
         //攻撃のアニメーションを流す
         if(Input.GetButtonDown("Fire1"))
         {
-
+            m_anim.SetTrigger("Attack");
         }
     }
     void UpdateMove()
@@ -108,7 +108,7 @@ public class PlayerMoveController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //攻撃対象の取得
-        if(gameObject.CompareTag(m_enemyTag))
+        if(other.gameObject.CompareTag(m_enemyTag))
         {
             m_enemy = other.gameObject.GetComponent<EnemyController>();
         }
@@ -116,7 +116,7 @@ public class PlayerMoveController : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         //攻撃対象の情報破棄
-        if(gameObject.CompareTag(m_enemyTag))
+        if(other.gameObject.CompareTag(m_enemyTag))
         {
             m_enemy = default;
         }
