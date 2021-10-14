@@ -36,6 +36,18 @@ public class PlayerMoveController : MonoBehaviour
     {
         InputMove();
         UpdateMove();
+
+        //マウスカーソルをオンオフさせる
+        if (Input.GetButtonDown("Cancel"))
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
     }
     void InputMove()
     {
@@ -54,18 +66,6 @@ public class PlayerMoveController : MonoBehaviour
         {
             m_currentSpeed = m_moveSpeed;
             m_anim.SetBool("Dush", false);
-        }
-
-        //マウスカーソルをオンオフさせる
-        if (Input.GetButtonDown("Cancel"))
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
-        else
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
         }
 
         //攻撃のアニメーションを流す
@@ -88,6 +88,7 @@ public class PlayerMoveController : MonoBehaviour
         }
         transform.rotation = Quaternion.RotateTowards(transform.rotation, m_rotation, rotationSpeed);
 
+        m_move.y = -1;
         //移動のアップデート
         m_rb.velocity = m_move * m_currentSpeed;
 
