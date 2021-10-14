@@ -24,7 +24,9 @@ public class PlayerMoveController : MonoBehaviour
     [Space(10), Header("各種設定")]
     [SerializeField, Tooltip("回転の滑らかさ")]float rotationSpeed = 7f;
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
-    [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "";
+    [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
+    [SerializeField, Tooltip("接地判定のタグ")] string m_groundTag = "Ground";
+    [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
 
     private void Start()
     {
@@ -43,7 +45,7 @@ public class PlayerMoveController : MonoBehaviour
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
-        else
+        else if(!m_mouseCursor)
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
