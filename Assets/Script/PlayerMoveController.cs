@@ -19,8 +19,10 @@ public class PlayerMoveController : MonoBehaviour
     [SerializeField,Tooltip("通常のスピード")] float m_moveSpeed = 5f;
     [SerializeField,Tooltip("ダッシュ時のスピード")] float m_dushSpeed = 10f;
     float m_currentSpeed;
+    float m_dush;
     [Space(10)]
     [SerializeField, Tooltip("ジャンプの数値")] float m_jumpPower = 5f;
+    bool isJump;
     [Space(10), Header("各種設定")]
     [SerializeField, Tooltip("回転の滑らかさ")]float rotationSpeed = 7f;
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
@@ -62,12 +64,12 @@ public class PlayerMoveController : MonoBehaviour
         {
             //今のスピード値とパラメータを変更
             m_currentSpeed = m_dushSpeed;
-            m_anim.SetBool("Dush", true);
+            m_dush = 1;//あとで三項演算子使う
         }
         else
         {
             m_currentSpeed = m_moveSpeed;
-            m_anim.SetBool("Dush", false);
+            m_dush = 0;
         }
 
         //攻撃のアニメーションを流す
@@ -95,8 +97,8 @@ public class PlayerMoveController : MonoBehaviour
         m_rb.velocity = m_move * m_currentSpeed;
 
         //パラメータにXYの値を入れる
-        m_anim.SetFloat("X", m_h);
-        m_anim.SetFloat("Y", m_v);
+        m_anim.SetFloat("X", Mathf.Abs(m_h) + m_dush);
+        m_anim.SetFloat("Y", Mathf.Abs(m_v) + m_dush);
     }
     void InputAttack()
     {
