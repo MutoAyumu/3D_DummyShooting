@@ -2,117 +2,135 @@
 using Cinemachine;
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] Transform m_player = default;
-    float m_x;
-    float m_y;
-
-    [SerializeField] Transform m_pivot = default;
-    [SerializeField] Camera m_cam;
-    float m_Angle;
-    [SerializeField, Range(-0.5f, 0f)] float m_minY = -0.25f;
-    [SerializeField, Range(0f, 0.5f)] float m_maxY = 0.25f;
-
-    float m_h;
-    float m_v;
-    float m_dash = 0;
-    Quaternion m_rotation;
-    [SerializeField] int m_speed = 3;
-    [SerializeField] int m_dashSpeed = 5;
-    int m_currentSpeed;
-
     Rigidbody m_rb;
     Animator m_anim;
+    Vector3 m_move;
+    EnemyController m_enemy;
+
+    Quaternion m_rotation;
+    float m_h;
+    float m_v;
+
+    [Header("動き")]
+    [SerializeField, Tooltip("通常のスピード")] float m_moveSpeed = 5f;
+    [SerializeField, Tooltip("ダッシュ時のスピード")] float m_dushSpeed = 10f;
+    float m_currentSpeed;
+    float m_dush;
+    [Space(10)]
+    [SerializeField, Tooltip("ジャンプの数値")] float m_jumpPower = 5f;
+    bool isJump;
+    [Space(10), Header("各種設定")]
+    [SerializeField, Tooltip("入力のデッドゾーン")] float m_deadZone = 0.2f;
+    [SerializeField, Tooltip("回転の滑らかさ")] float m_rotationSpeed = 7f;
+    [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
+    [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
+    [SerializeField, Tooltip("接地判定のタグ")] string m_groundTag = "Ground";
+    [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
+
     private void Start()
     {
         m_rb = GetComponent<Rigidbody>();
         m_anim = GetComponent<Animator>();
-        m_currentSpeed = m_speed;
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        m_rotation = transform.rotation;
     }
     private void Update()
     {
         InputMove();
-    }
-    private void FixedUpdate()
-    {
-        MoveUpdate();
-    }
-    void InputMove()
-    {
-        m_x = Input.GetAxis("Mouse Y");
-        m_y = Input.GetAxis("Mouse X");
+        
 
-        m_h = Input.GetAxisRaw("Horizontal");
-        m_v = Input.GetAxisRaw("Vertical");
-
-        if(Input.GetButton("Shift") && m_v > 0)
-        {
-            m_currentSpeed = m_dashSpeed;
-            m_anim.SetBool("Dush", true);
-        }
-        else
-        {
-            m_currentSpeed = m_speed;
-            m_anim.SetBool("Dush", false);
-        }
-
+        //マウスカーソルをオンオフさせる
         if (Input.GetButtonDown("Cancel"))
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
-        else
+        else if (!m_mouseCursor)
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
     }
-    void MoveUpdate()
+    private void FixedUpdate()
     {
-        m_Angle = m_pivot.localRotation.x;
-        m_player.transform.Rotate(0, m_y, 0);
+        UpdateMove();
+    }
+    void InputMove()
+    {
+        //移動入力の取得
+        m_h = Input.GetAxisRaw("Horizontal");
+        m_v = Input.GetAxisRaw("Vertical");
 
-        if (m_x != 0)
+        if (Input.GetButton("Shift") && (m_h != 0 || m_v != 0))
         {
-            if (0 <= -m_x)
-            {
-                if(m_minY >= m_Angle)
-                {
-                    return;
-                }
-                else if (m_minY <= m_Angle)
-                {
-                    m_pivot.transform.Rotate(m_x, 0, 0);
-                }
-            }
-            else
-            {
-                if(m_Angle >= m_maxY)
-                {
-                    return;
-                }
-                else if (m_Angle <= m_maxY)
-                {
-                    m_pivot.transform.Rotate(m_x, 0, 0);
-                }
-            }
+            //今のスピード値とパラメータを変更
+            m_currentSpeed = m_dushSpeed;
+            m_dush = 1;//あとで三項演算子使う
+        }
+        else
+        {
+            m_currentSpeed = m_moveSpeed;
+            m_dush = 0;
         }
 
-        //m_rotation = Quaternion.AngleAxis(m_cam.transform.eulerAngles.y, Vector3.up);
-        //Vector3 move = m_rotation * new Vector3(m_h, 0, m_v).normalized;
-        //m_rb.velocity = move * m_currentSpeed;
+        //攻撃のアニメーションを流す
+        if (Input.GetButtonDown("Fire1"))
+        {
+            m_anim.SetTrigger("Attack");
+        }
+    }
+    void UpdateMove()
+    {
+        m_move = new Vector3(m_h, 0, m_v);
+        m_move = Camera.main.transform.TransformDirection(m_move);
+        //Ｙ成分だけを0にする
+        m_move.y = 0;
 
-        Vector3 move = new Vector3(m_h, 0, m_v);
-        // m_pivotのローカル座標系を基準に dir を変換する
-        move = m_pivot.transform.TransformDirection(move.normalized);
-        // m_pivotは斜め下に向いているので、Y 軸の値を 0 にして「XZ 平面上のベクトル」にする
-        move.y = 0;
-        move.y = -1;
-        // 移動の入力がない時は回転させない。入力がある時はその方向にキャラクターを向ける。
-        m_rb.velocity = move.normalized * m_currentSpeed;
+        if (m_move != Vector3.zero)
+        {
+            //移動方向を向く
+            m_rotation = Quaternion.LookRotation(m_move, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, m_rotation, m_rotationSpeed);
+        }
 
-        m_anim.SetFloat("X", m_h);
-        m_anim.SetFloat("Y", m_v);
+        //動きのベクトルをCameraのローカル座標系に変更
+        m_move.y = -1;
+        
+        //移動のアップデート
+        m_rb.AddForce(m_move * m_moveSpeed, ForceMode.Force);
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            m_rb.velocity = new Vector3(m_rb.velocity.x, m_jumpPower, m_rb.velocity.z);
+        }
+
+        //パラメータにXYの値を入れる
+        m_anim.SetFloat("X", Mathf.Abs(m_h) + m_dush, 0.1f, Time.deltaTime);
+        m_anim.SetFloat("Y", Mathf.Abs(m_v) + m_dush, 0.1f, Time.deltaTime);
+    }
+    void InputAttack()
+    {
+        if (m_enemy != null)
+        {
+            m_enemy.TakeDamage(m_attackPower);
+        }
+    }
+
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        //攻撃対象の取得
+        if (other.gameObject.CompareTag(m_enemyTag))
+        {
+            m_enemy = other.gameObject.GetComponent<EnemyController>();
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        //攻撃対象の情報破棄
+        if (other.gameObject.CompareTag(m_enemyTag))
+        {
+            m_enemy = default;
+        }
     }
 }

@@ -34,7 +34,6 @@ public class PlayerMoveController : MonoBehaviour
     {
         m_rb = GetComponent<Rigidbody>();
         m_anim = GetComponent<Animator>();
-        m_rotation = transform.rotation;
     }
     private void Update()
     {
@@ -58,13 +57,15 @@ public class PlayerMoveController : MonoBehaviour
         //移動入力の取得
         m_h = Input.GetAxisRaw("Horizontal");
         m_v = Input.GetAxisRaw("Vertical");
-        m_move = new Vector3(m_h, 0, m_v).normalized;
 
-        if(Input.GetButton("Shift") && (m_h != 0 || m_v != 0))
+        // 入力方向のベクトルを組み立てる
+        m_move = Vector3.forward * m_v + Vector3.right * m_h;
+
+        if (Input.GetButton("Shift") && (m_h != 0 || m_v != 0))
         {
             //今のスピード値とパラメータを変更
             m_currentSpeed = m_dushSpeed;
-            m_dush = 1;//あとで三項演算子使う
+            m_dush = 1;
         }
         else
         {
@@ -77,24 +78,28 @@ public class PlayerMoveController : MonoBehaviour
         {
             m_anim.SetTrigger("Attack");
         }
+
+        // ジャンプの入力を取得し、接地している時に押されていたらジャンプする
+        if (Input.GetButtonDown("Jump") && !isJump)
+        {
+            m_rb.velocity = new Vector3(m_rb.velocity.x, m_jumpPower, m_rb.velocity.z);
+        }
     }
     void UpdateMove()
     {
-        //動きのベクトルをCameraのローカル座標系に変更
-        m_move = Camera.main.transform.TransformDirection(m_move);
-        //Ｙ成分だけを0にする
-        m_move.y = 0;
-
-        //移動方向を向く
-        if (m_move.magnitude > 0.5f)
+        if(m_move != Vector3.zero)
         {
-            m_rotation = Quaternion.LookRotation(m_move, Vector3.up);
-        }
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, m_rotation, rotationSpeed);
+            m_move = Camera.main.transform.TransformDirection(m_move);    // カメラのローカル座標に変換する
+            m_move.y = 0;  // y 軸方向はゼロにして水平方向のベクトルにする
 
-        m_move.y = -1;
-        //移動のアップデート
-        m_rb.velocity = m_move * m_currentSpeed;
+            // 入力方向に滑らかに回転させる
+            Quaternion targetRotation = Quaternion.LookRotation(m_move);
+            this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);  // Slerp を使うのがポイント
+
+            Vector3 dir = m_move.normalized * m_currentSpeed; // 入力した方向に移動する
+            dir.y = m_rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
+            m_rb.velocity = dir;   // 計算した速度ベクトルをセットする
+        }
 
         //パラメータにXYの値を入れる
         m_anim.SetFloat("X", Mathf.Abs(m_h) + m_dush);
@@ -107,15 +112,16 @@ public class PlayerMoveController : MonoBehaviour
             m_enemy.TakeDamage(m_attackPower);
         }
     }
-
-
-
     private void OnTriggerEnter(Collider other)
     {
         //攻撃対象の取得
         if(other.gameObject.CompareTag(m_enemyTag))
         {
             m_enemy = other.gameObject.GetComponent<EnemyController>();
+        }
+        if (other.gameObject.CompareTag(m_groundTag))
+        {
+            isJump = false;
         }
     }
     private void OnTriggerExit(Collider other)
@@ -124,6 +130,11 @@ public class PlayerMoveController : MonoBehaviour
         if(other.gameObject.CompareTag(m_enemyTag))
         {
             m_enemy = default;
+        }
+
+        if(other.gameObject.CompareTag(m_groundTag))
+        {
+            isJump = true;
         }
     }
 }
