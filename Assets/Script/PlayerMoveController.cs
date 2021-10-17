@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Cinemachine;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,21 +15,30 @@ public class PlayerMoveController : MonoBehaviour
     Quaternion m_rotation;
     float m_h;
     float m_v;
+    public bool isAim;
 
     [Header("動き")]
-    [SerializeField,Tooltip("通常のスピード")] float m_moveSpeed = 5f;
-    [SerializeField,Tooltip("ダッシュ時のスピード")] float m_dushSpeed = 10f;
+    [SerializeField, Tooltip("通常のスピード")] float m_moveSpeed = 5f;
+    [SerializeField, Tooltip("ダッシュ時のスピード")] float m_dushSpeed = 10f;
     float m_currentSpeed;
     float m_dush;
     [Space(10)]
     [SerializeField, Tooltip("ジャンプの数値")] float m_jumpPower = 5f;
     bool isJump;
+    [Space(10), Header("カメラ")]
+    [SerializeField] CinemachineVirtualCamera m_defaultCam;
+    [SerializeField] CinemachineVirtualCamera m_aimCam;
     [Space(10), Header("各種設定")]
-    [SerializeField, Tooltip("回転の滑らかさ")]float rotationSpeed = 7f;
+    [SerializeField, Tooltip("回転の滑らかさ")] float rotationSpeed = 7f;
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
     [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
     [SerializeField, Tooltip("接地判定のタグ")] string m_groundTag = "Ground";
     [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
+    [Space(10), Header("AIM")]
+    [SerializeField] float m_aimSpeed;
+    [SerializeField] Transform m_eye;
+    [SerializeField] AxisState m_aimH;
+    [SerializeField] AxisState m_aimV;
 
     private void Start()
     {
@@ -46,7 +56,7 @@ public class PlayerMoveController : MonoBehaviour
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
-        else if(!m_mouseCursor)
+        else if (!m_mouseCursor)
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -74,7 +84,7 @@ public class PlayerMoveController : MonoBehaviour
         }
 
         //攻撃のアニメーションを流す
-        if(Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1"))
         {
             m_anim.SetTrigger("Attack");
         }
@@ -84,21 +94,52 @@ public class PlayerMoveController : MonoBehaviour
         {
             m_rb.velocity = new Vector3(m_rb.velocity.x, m_jumpPower, m_rb.velocity.z);
         }
+
+        if(Input.GetButton("Aim"))
+        {
+            isAim = true;
+            m_aimCam.MoveToTopOfPrioritySubqueue();
+        }
+        else
+        {
+            isAim = false;
+            m_defaultCam.MoveToTopOfPrioritySubqueue();
+        }
     }
     void UpdateMove()
     {
-        if(m_move != Vector3.zero)
+        m_aimH.Update(Time.deltaTime);
+        m_aimV.Update(Time.deltaTime);
+        var aimRotationH = Quaternion.AngleAxis(m_aimH.Value, Vector3.up);
+        var aimRotationV = Quaternion.AngleAxis(m_aimV.Value, Vector3.right);
+
+        if (m_move != Vector3.zero)
         {
             m_move = Camera.main.transform.TransformDirection(m_move);    // カメラのローカル座標に変換する
             m_move.y = 0;  // y 軸方向はゼロにして水平方向のベクトルにする
 
-            // 入力方向に滑らかに回転させる
-            Quaternion targetRotation = Quaternion.LookRotation(m_move);
-            this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);  // Slerp を使うのがポイント
-
             Vector3 dir = m_move.normalized * m_currentSpeed; // 入力した方向に移動する
             dir.y = m_rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
             m_rb.velocity = dir;   // 計算した速度ベクトルをセットする
+
+            m_eye.localRotation = aimRotationV;
+
+            if (!isAim)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(m_move);
+                this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);  // Slerp を使うのがポイント
+            }
+            else
+            {
+                this.transform.rotation = aimRotationH;
+            }
+        }
+        else
+        {
+            if(isAim)
+            {
+                this.transform.rotation = aimRotationH;
+            }
         }
 
         //パラメータにXYの値を入れる
@@ -107,7 +148,7 @@ public class PlayerMoveController : MonoBehaviour
     }
     void InputAttack()
     {
-        if(m_enemy != null)
+        if (m_enemy != null)
         {
             m_enemy.TakeDamage(m_attackPower);
         }
@@ -115,7 +156,7 @@ public class PlayerMoveController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //攻撃対象の取得
-        if(other.gameObject.CompareTag(m_enemyTag))
+        if (other.gameObject.CompareTag(m_enemyTag))
         {
             m_enemy = other.gameObject.GetComponent<EnemyController>();
         }
@@ -127,12 +168,12 @@ public class PlayerMoveController : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         //攻撃対象の情報破棄
-        if(other.gameObject.CompareTag(m_enemyTag))
+        if (other.gameObject.CompareTag(m_enemyTag))
         {
             m_enemy = default;
         }
 
-        if(other.gameObject.CompareTag(m_groundTag))
+        if (other.gameObject.CompareTag(m_groundTag))
         {
             isJump = true;
         }
