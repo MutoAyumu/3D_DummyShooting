@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using GD.MinMaxSlider;
 using UnityEngine;
 
 public class MatchPositionSMB : StateMachineBehaviour

@@ -10,6 +10,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     Animator m_anim;
     Vector3 m_move;
     EnemyController m_enemy;
+    AnimatorStateInfo m_currentState;
 
     Quaternion m_rotation;
     float m_h;
@@ -26,11 +27,10 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     [Header("各種設定")]
     [SerializeField, Tooltip("回転の滑らかさ")] float rotationSpeed = 7f;
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
-    bool isAttack;
     [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
     [SerializeField, Tooltip("接地判定のタグ")] string m_groundTag = "Ground";
     [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
-    [SerializeField] Transform target;
+    [SerializeField] Transform m_target;
     Collider targetCollider;
 
     private void Awake()
@@ -38,10 +38,10 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         m_rb = GetComponent<Rigidbody>();
         m_anim = GetComponent<Animator>();
 
-        target.TryGetComponent(out targetCollider);
+        m_target.TryGetComponent(out targetCollider);
         m_anim.keepAnimatorControllerStateOnDisable = true;
 
-        foreach(var smb in m_anim.GetBehaviours<MatchPositionSMB>())
+        foreach (var smb in m_anim.GetBehaviours<MatchPositionSMB>())
         {
             smb.target = this;
         }
@@ -49,7 +49,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
 
     private void Start()
     {
-        
+
     }
     private void Update()
     {
@@ -89,6 +89,8 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
             m_dush = 0;
         }
 
+        m_currentState = m_anim.GetCurrentAnimatorStateInfo(0);
+
         //攻撃のアニメーションを流す
         if (Input.GetButtonDown("Fire1"))
         {
@@ -105,32 +107,29 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     }
     void UpdateMove()
     {
-        if (!isAttack)
+        if (m_move != Vector3.zero)
         {
-            if (m_move != Vector3.zero)
-            {
-                m_move = Camera.main.transform.TransformDirection(m_move);    // カメラのローカル座標に変換する
-                m_move.y = 0;  // y 軸方向はゼロにして水平方向のベクトルにする
+            m_move = Camera.main.transform.TransformDirection(m_move);    // カメラのローカル座標に変換する
+            m_move.y = 0;  // y 軸方向はゼロにして水平方向のベクトルにする
 
-                // 入力方向に滑らかに回転させる
-                Quaternion targetRotation = Quaternion.LookRotation(m_move);
-                this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);  // Slerp を使うのがポイント
+            // 入力方向に滑らかに回転させる
+            Quaternion targetRotation = Quaternion.LookRotation(m_move);
+            this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);  // Slerp を使うのがポイント
 
-                Vector3 dir = m_move.normalized * m_currentSpeed; // 入力した方向に移動する
-                dir.y = m_rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
-                m_rb.velocity = dir;   // 計算した速度ベクトルをセットする
-            }
-            else
-            {
-                Vector3 dir = Vector3.zero;
-                dir.y = m_rb.velocity.y;
-                m_rb.velocity = dir;
-            }
-
-            //パラメータにXYの値を入れる
-            m_anim.SetFloat("X", Mathf.Abs(m_h) + m_dush, 0.3f, Time.deltaTime);
-            m_anim.SetFloat("Y", Mathf.Abs(m_v) + m_dush, 0.3f, Time.deltaTime);
+            Vector3 dir = m_move.normalized * m_currentSpeed; // 入力した方向に移動する
+            dir.y = m_rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
+            m_rb.velocity = dir;   // 計算した速度ベクトルをセットする
         }
+        else
+        {
+            Vector3 dir = Vector3.zero;
+            dir.y = m_rb.velocity.y;
+            m_rb.velocity = dir;
+        }
+
+        //パラメータにXYの値を入れる
+        m_anim.SetFloat("X", Mathf.Abs(m_h) + m_dush, 0.3f, Time.deltaTime);
+        m_anim.SetFloat("Y", Mathf.Abs(m_v) + m_dush, 0.3f, Time.deltaTime);
     }
     void InputAttack()
     {
