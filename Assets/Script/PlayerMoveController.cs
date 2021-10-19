@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Animator))]
-public class PlayerMoveController : MonoBehaviour
+public class PlayerMoveController : MonoBehaviour, IMatchTarget
 {
     Rigidbody m_rb;
     Animator m_anim;
@@ -26,14 +26,30 @@ public class PlayerMoveController : MonoBehaviour
     [Header("各種設定")]
     [SerializeField, Tooltip("回転の滑らかさ")] float rotationSpeed = 7f;
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
+    bool isAttack;
     [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
     [SerializeField, Tooltip("接地判定のタグ")] string m_groundTag = "Ground";
     [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
+    [SerializeField] Transform target;
+    Collider targetCollider;
 
-    private void Start()
+    private void Awake()
     {
         m_rb = GetComponent<Rigidbody>();
         m_anim = GetComponent<Animator>();
+
+        target.TryGetComponent(out targetCollider);
+        m_anim.keepAnimatorControllerStateOnDisable = true;
+
+        foreach(var smb in m_anim.GetBehaviours<MatchPositionSMB>())
+        {
+            smb.target = this;
+        }
+    }
+
+    private void Start()
+    {
+        
     }
     private void Update()
     {
@@ -77,6 +93,7 @@ public class PlayerMoveController : MonoBehaviour
         if (Input.GetButtonDown("Fire1"))
         {
             m_anim.SetTrigger("Attack");
+            m_anim.SetInteger("AttackNum", 0);
         }
 
         // ジャンプの入力を取得し、接地している時に押されていたらジャンプする
@@ -88,23 +105,32 @@ public class PlayerMoveController : MonoBehaviour
     }
     void UpdateMove()
     {
-        if (m_move != Vector3.zero)
+        if (!isAttack)
         {
-            m_move = Camera.main.transform.TransformDirection(m_move);    // カメラのローカル座標に変換する
-            m_move.y = 0;  // y 軸方向はゼロにして水平方向のベクトルにする
+            if (m_move != Vector3.zero)
+            {
+                m_move = Camera.main.transform.TransformDirection(m_move);    // カメラのローカル座標に変換する
+                m_move.y = 0;  // y 軸方向はゼロにして水平方向のベクトルにする
 
-            // 入力方向に滑らかに回転させる
-            Quaternion targetRotation = Quaternion.LookRotation(m_move);
-            this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);  // Slerp を使うのがポイント
+                // 入力方向に滑らかに回転させる
+                Quaternion targetRotation = Quaternion.LookRotation(m_move);
+                this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);  // Slerp を使うのがポイント
 
-            Vector3 dir = m_move.normalized * m_currentSpeed; // 入力した方向に移動する
-            dir.y = m_rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
-            m_rb.velocity = dir;   // 計算した速度ベクトルをセットする
+                Vector3 dir = m_move.normalized * m_currentSpeed; // 入力した方向に移動する
+                dir.y = m_rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
+                m_rb.velocity = dir;   // 計算した速度ベクトルをセットする
+            }
+            else
+            {
+                Vector3 dir = Vector3.zero;
+                dir.y = m_rb.velocity.y;
+                m_rb.velocity = dir;
+            }
+
+            //パラメータにXYの値を入れる
+            m_anim.SetFloat("X", Mathf.Abs(m_h) + m_dush, 0.3f, Time.deltaTime);
+            m_anim.SetFloat("Y", Mathf.Abs(m_v) + m_dush, 0.3f, Time.deltaTime);
         }
-
-        //パラメータにXYの値を入れる
-        m_anim.SetFloat("X", Mathf.Abs(m_h) + m_dush, 0.3f, Time.deltaTime);
-        m_anim.SetFloat("Y", Mathf.Abs(m_v) + m_dush, 0.3f, Time.deltaTime);
     }
     void InputAttack()
     {
@@ -113,6 +139,9 @@ public class PlayerMoveController : MonoBehaviour
             m_enemy.TakeDamage(m_attackPower);
         }
     }
+
+    public Vector3 TargetPosition => targetCollider.ClosestPoint(transform.position);
+
     private void OnTriggerEnter(Collider other)
     {
         //攻撃対象の取得
