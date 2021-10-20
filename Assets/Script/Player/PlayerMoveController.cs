@@ -10,7 +10,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     Animator m_anim;
     Vector3 m_move;
     EnemyController m_enemy;
-    AnimatorStateInfo m_currentState;
+    GameManager m_gmanager;
 
     Quaternion m_rotation;
     float m_h;
@@ -23,28 +23,30 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     float m_dush;
     [Space(10)]
     [SerializeField, Tooltip("ジャンプの数値")] float m_jumpPower = 5f;
-    bool isJump;
+    bool isGround;
     [Header("各種設定")]
     [SerializeField, Tooltip("回転の滑らかさ")] float rotationSpeed = 7f;
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
     [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
-    [SerializeField, Tooltip("接地判定のタグ")] string m_groundTag = "Ground";
+    [SerializeField, Tooltip("接地判定のレイヤー")] LayerMask m_groundLayer;
+    [SerializeField, Tooltip("Rayの長さ")] float m_rayLength = 3f;
     [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
-    [SerializeField] Transform m_target;
+    [SerializeField] public GameObject m_target;
     Collider targetCollider;
 
     private void Awake()
     {
         m_rb = GetComponent<Rigidbody>();
         m_anim = GetComponent<Animator>();
+        m_gmanager = GameObject.FindObjectOfType<GameManager>();
 
-        m_target.TryGetComponent(out targetCollider);
+        //m_target.TryGetComponent(out targetCollider);
         m_anim.keepAnimatorControllerStateOnDisable = true;
 
-        foreach (var smb in m_anim.GetBehaviours<MatchPositionSMB>())
-        {
-            smb.target = this;
-        }
+        //foreach (var smb in m_anim.GetBehaviours<MatchPositionSMB>())
+        //{
+        //    smb.target = this;
+        //}
     }
 
     private void Start()
@@ -55,6 +57,11 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     {
         InputMove();
         UpdateMove();
+        IsGround();
+
+
+        EnemyFocus();
+
 
         //マウスカーソルをオンオフさせる
         if (Input.GetButtonDown("Cancel"))
@@ -67,6 +74,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
+
     }
     void InputMove()
     {
@@ -89,8 +97,6 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
             m_dush = 0;
         }
 
-        m_currentState = m_anim.GetCurrentAnimatorStateInfo(0);
-
         //攻撃のアニメーションを流す
         if (Input.GetButtonDown("Fire1"))
         {
@@ -99,7 +105,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         }
 
         // ジャンプの入力を取得し、接地している時に押されていたらジャンプする
-        if (Input.GetButtonDown("Jump") && !isJump)
+        if (Input.GetButtonDown("Jump") && isGround)
         {
             m_rb.velocity = new Vector3(m_rb.velocity.x, m_jumpPower, m_rb.velocity.z);
             m_anim.SetTrigger("Jump");
@@ -131,6 +137,40 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         m_anim.SetFloat("X", Mathf.Abs(m_h) + m_dush, 0.3f, Time.deltaTime);
         m_anim.SetFloat("Y", Mathf.Abs(m_v) + m_dush, 0.3f, Time.deltaTime);
     }
+
+    void EnemyFocus()
+    {
+        if (m_target != null)
+        {
+            m_target.TryGetComponent(out targetCollider);
+            foreach (var smb in m_anim.GetBehaviours<MatchPositionSMB>())
+            {
+                smb.target = this;
+            }
+        }
+        else
+        {
+            foreach (var smb in m_anim.GetBehaviours<MatchPositionSMB>())
+            {
+                smb.target = null;
+            }
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        //Gizmos.DrawWireSphere(this.transform.position, 0.5f);
+    }
+
+    void IsGround()
+    {
+        Ray origin = new Ray(this.transform.position, Vector3.down);
+        var mtf = this.transform.position;
+        isGround = Physics.Raycast(origin, m_rayLength, m_groundLayer);
+        Debug.DrawLine(mtf, new Vector3(mtf.x, mtf.y - m_rayLength, mtf.z), Color.red);
+        //Debug.Log(isGround);
+    }
+
     void InputAttack()
     {
         if (m_enemy != null)
@@ -148,11 +188,11 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         {
             m_enemy = other.gameObject.GetComponent<EnemyController>();
         }
-        if (other.gameObject.CompareTag(m_groundTag))
-        {
-            isJump = false;
-            m_anim.SetBool("Air", false);
-        }
+        //if (other.gameObject.CompareTag(m_groundTag))
+        //{
+        //    isJump = false;
+        //    m_anim.SetBool("Air", false);
+        //}
     }
     private void OnTriggerExit(Collider other)
     {
@@ -162,10 +202,10 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
             m_enemy = default;
         }
 
-        if (other.gameObject.CompareTag(m_groundTag))
-        {
-            isJump = true;
-            m_anim.SetBool("Air", true);
-        }
+        //if (other.gameObject.CompareTag(m_groundTag))
+        //{
+        //    isJump = true;
+        //    m_anim.SetBool("Air", true);
+        //}
     }
 }

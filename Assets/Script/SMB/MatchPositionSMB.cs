@@ -21,28 +21,34 @@ public class MatchPositionSMB : StateMachineBehaviour
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if(isInitialized == false)
+        if (target != null)
         {
-            var weight = new Vector3(assistPower, 0, assistPower);
-            weightMask = new MatchTargetWeightMask(weight, 0);
-            isInitialized = true;
-        }
+            if (isInitialized == false)
+            {
+                var weight = new Vector3(assistPower, 0, assistPower);
+                weightMask = new MatchTargetWeightMask(weight, 0);
+                isInitialized = true;
+            }
 
-        isSkip = Vector3.Distance(target.TargetPosition, animator.rootPosition) > assistDistance;
+            isSkip = Vector3.Distance(target.TargetPosition, animator.rootPosition) > assistDistance;
+        }
     }
 
     public override void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (isSkip == true || animator.IsInTransition(layerIndex))
-            return;
+        if (target != null)
+        {
+            if (isSkip == true || animator.IsInTransition(layerIndex))
+                return;
 
-        if(stateInfo.normalizedTime > effectiveRange.y)
-        {
-            animator.InterruptMatchTarget(false);
-        }
-        else
-        {
-            animator.MatchTarget(target.TargetPosition, animator.bodyRotation, targetBodyPart,weightMask, effectiveRange.x, effectiveRange.y);
+            if (stateInfo.normalizedTime > effectiveRange.y)
+            {
+                animator.InterruptMatchTarget(false);
+            }
+            else
+            {
+                animator.MatchTarget(target.TargetPosition, animator.bodyRotation, targetBodyPart, weightMask, effectiveRange.x, effectiveRange.y);
+            }
         }
     }
 }

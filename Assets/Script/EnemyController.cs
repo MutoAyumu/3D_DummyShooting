@@ -9,7 +9,8 @@ public class EnemyController : MonoBehaviour
 {
     Rigidbody m_rb;
     Animator m_anim;
-    CapsuleCollider m_collider;
+    [System.NonSerialized]public CapsuleCollider m_collider;
+    GameManager m_gmanager;
 
     [Header("HP")]
     [SerializeField, Tooltip("HPの値")] float m_hp = 3f;
@@ -19,13 +20,18 @@ public class EnemyController : MonoBehaviour
     [Header("動き")]
     [SerializeField] float m_moveSpeed = 5f;
 
-    private void Start()
+    private void Awake()
     {
+        m_gmanager = GameObject.FindObjectOfType<GameManager>();
         m_rb = GetComponent<Rigidbody>();
         m_anim = GetComponent<Animator>();
         m_collider = GetComponent<CapsuleCollider>();
         m_currentHp = m_hp;
         m_hpSlider.value = 1;
+    }
+    private void Start()
+    {
+
     }
     private void Update()
     {
@@ -53,6 +59,18 @@ public class EnemyController : MonoBehaviour
             m_collider.enabled = false;
             m_rb.useGravity = false;
             m_rb.isKinematic = true;
+            m_gmanager.m_enemysList.Remove(this.gameObject);
+            m_gmanager.m_enemysList.Sort();
         }
+    }
+    private void OnEnable()
+    {
+        if(m_gmanager)
+        m_gmanager.m_enemysList.Add(this.gameObject);
+    }
+    private void OnDisable()
+    {
+        m_gmanager.m_enemysList.Remove(this.gameObject);
+        m_gmanager.m_enemysList.Sort();
     }
 }
