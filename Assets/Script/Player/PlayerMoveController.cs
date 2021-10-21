@@ -100,6 +100,9 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         //攻撃のアニメーションを流す
         if (Input.GetButtonDown("Fire1"))
         {
+            if(m_target)
+            this.transform.LookAt(m_target.transform, Vector3.up);
+
             m_anim.SetTrigger("Attack");
             m_anim.SetInteger("AttackNum", 0);
         }

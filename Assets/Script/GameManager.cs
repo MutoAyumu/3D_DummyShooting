@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public List<GameObject> m_enemysList;
-    public PlayerMoveController m_player;
+    [HideInInspector]public List<GameObject> m_enemysList;
+    PlayerMoveController m_player;
 
     static GameManager instance = null;
 
