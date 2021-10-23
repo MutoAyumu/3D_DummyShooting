@@ -29,7 +29,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
     [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
     [SerializeField, Tooltip("接地判定のレイヤー")] LayerMask m_groundLayer;
-    [SerializeField, Tooltip("Rayの長さ")] float m_rayLength = 3f;
+    [SerializeField, Tooltip("Rayの方向")] Vector3 m_rayDir = Vector3.zero;
     [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
     [SerializeField] public GameObject m_target;
     Collider targetCollider;
@@ -98,13 +98,13 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         }
 
         //攻撃のアニメーションを流す
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1") && isGround)
         {
             if(m_target)
             this.transform.LookAt(m_target.transform, Vector3.up);
-
-            m_anim.SetTrigger("Attack");
-            m_anim.SetInteger("AttackNum", 0);
+            
+            m_anim.SetBool("Attack 0", true);
+            m_anim.SetInteger("AttackNum", 1);
         }
 
         // ジャンプの入力を取得し、接地している時に押されていたらジャンプする
@@ -116,7 +116,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     }
     void UpdateMove()
     {
-        if (m_move != Vector3.zero)
+        if (m_move != Vector3.zero && !m_anim.GetBool("Attack 0"))
         {
             m_move = Camera.main.transform.TransformDirection(m_move);    // カメラのローカル座標に変換する
             m_move.y = 0;  // y 軸方向はゼロにして水平方向のベクトルにする
@@ -160,18 +160,22 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        //Gizmos.DrawWireSphere(this.transform.position, 0.5f);
-    }
-
     void IsGround()
     {
-        Ray origin = new Ray(this.transform.position, Vector3.down);
         var mtf = this.transform.position;
-        isGround = Physics.Raycast(origin, m_rayLength, m_groundLayer);
-        Debug.DrawLine(mtf, new Vector3(mtf.x, mtf.y - m_rayLength, mtf.z), Color.red);
-        //Debug.Log(isGround);
+        isGround = Physics.Raycast(mtf, m_rayDir, m_rayDir.magnitude, m_groundLayer);
+        Debug.DrawRay(mtf, m_rayDir, Color.red);
+
+        if (isGround)
+        {
+            m_anim.SetBool("Air", false);
+            m_anim.applyRootMotion = true;
+        }
+        else
+        {
+            m_anim.SetBool("Air", true);
+            m_anim.applyRootMotion = false;
+        }
     }
 
     void InputAttack()
@@ -191,11 +195,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         {
             m_enemy = other.gameObject.GetComponent<EnemyController>();
         }
-        //if (other.gameObject.CompareTag(m_groundTag))
-        //{
-        //    isJump = false;
-        //    m_anim.SetBool("Air", false);
-        //}
+
     }
     private void OnTriggerExit(Collider other)
     {
@@ -204,11 +204,5 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         {
             m_enemy = default;
         }
-
-        //if (other.gameObject.CompareTag(m_groundTag))
-        //{
-        //    isJump = true;
-        //    m_anim.SetBool("Air", true);
-        //}
     }
 }
