@@ -7,7 +7,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Animator))]
 public class EnemyController : MonoBehaviour
 {
-    Rigidbody m_rb;
+    [System.NonSerialized]public Rigidbody m_rb;
     Animator m_anim;
     [System.NonSerialized]public CapsuleCollider m_collider;
     GameManager m_gmanager;

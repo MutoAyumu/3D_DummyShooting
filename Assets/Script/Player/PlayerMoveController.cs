@@ -17,19 +17,16 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     float m_v;
 
     [Header("動き")]
-    [SerializeField, Tooltip("通常のスピード")] float m_moveSpeed = 5f;
-    [SerializeField, Tooltip("ダッシュ時のスピード")] float m_dushSpeed = 10f;
-    float m_currentSpeed;
+    [SerializeField, Tooltip("ジャンプの移動値")] float m_jumpMovePower = 5f;
     float m_dush;
     [Space(10)]
-    [SerializeField, Tooltip("ジャンプの数値")] float m_jumpPower = 5f;
-    bool isGround;
     [Header("各種設定")]
     [SerializeField, Tooltip("回転の滑らかさ")] float rotationSpeed = 7f;
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
     [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
     [SerializeField, Tooltip("接地判定のレイヤー")] LayerMask m_groundLayer;
     [SerializeField, Tooltip("Rayの方向")] Vector3 m_rayDir = Vector3.zero;
+    bool isGround;
     [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
     [SerializeField] public GameObject m_target;
     Collider targetCollider;
@@ -40,13 +37,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         m_anim = GetComponent<Animator>();
         m_gmanager = GameObject.FindObjectOfType<GameManager>();
 
-        //m_target.TryGetComponent(out targetCollider);
         m_anim.keepAnimatorControllerStateOnDisable = true;
-
-        //foreach (var smb in m_anim.GetBehaviours<MatchPositionSMB>())
-        //{
-        //    smb.target = this;
-        //}
     }
 
     private void Start()
@@ -86,16 +77,9 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         m_move = Vector3.forward * m_v + Vector3.right * m_h;
 
         if (Input.GetButton("Shift") && (m_h != 0 || m_v != 0))
-        {
-            //今のスピード値とパラメータを変更
-            m_currentSpeed = m_dushSpeed;
             m_dush = 1;
-        }
         else
-        {
-            m_currentSpeed = m_moveSpeed;
             m_dush = 0;
-        }
 
         //攻撃のアニメーションを流す
         if (Input.GetButtonDown("Fire1") && isGround)
@@ -103,20 +87,20 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
             if(m_target)
             this.transform.LookAt(m_target.transform, Vector3.up);
             
-            m_anim.SetBool("Attack 0", true);
-            m_anim.SetInteger("AttackNum", 1);
+            m_anim.SetBool("Attacking", true);
+            m_anim.SetTrigger("Attack");
+            m_anim.SetInteger("AttackNum", 0);
         }
 
         // ジャンプの入力を取得し、接地している時に押されていたらジャンプする
         if (Input.GetButtonDown("Jump") && isGround)
         {
-            m_rb.velocity = new Vector3(m_rb.velocity.x, m_jumpPower, m_rb.velocity.z);
-            m_anim.SetTrigger("Jump");
+            m_rb.velocity = new Vector3(m_rb.velocity.x, m_jumpMovePower, m_rb.velocity.z);
         }
     }
     void UpdateMove()
     {
-        if (m_move != Vector3.zero && !m_anim.GetBool("Attack 0"))
+        if (m_move != Vector3.zero && !m_anim.GetBool("Attacking"))
         {
             m_move = Camera.main.transform.TransformDirection(m_move);    // カメラのローカル座標に変換する
             m_move.y = 0;  // y 軸方向はゼロにして水平方向のベクトルにする
@@ -125,12 +109,12 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
             Quaternion targetRotation = Quaternion.LookRotation(m_move);
             this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);  // Slerp を使うのがポイント
 
-            Vector3 dir = m_move.normalized * m_currentSpeed; // 入力した方向に移動する
+            Vector3 dir = m_move.normalized * m_jumpMovePower; // 入力した方向に移動する
             dir.y = m_rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
             m_rb.velocity = dir;   // 計算した速度ベクトルをセットする
         }
-        else
-        {
+        else if(!m_anim.GetBool("Air"))
+            {
             Vector3 dir = Vector3.zero;
             dir.y = m_rb.velocity.y;
             m_rb.velocity = dir;
@@ -183,6 +167,9 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         if (m_enemy != null)
         {
             m_enemy.TakeDamage(m_attackPower);
+            Vector3 dir = (m_enemy.transform.position - this.transform.position).normalized;
+            dir.y = 2;
+            m_enemy.m_rb.AddForce(dir * 2, ForceMode.Impulse);
         }
     }
 
