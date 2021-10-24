@@ -85,8 +85,12 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         if (Input.GetButtonDown("Fire1") && isGround)
         {
             if(m_target)
-            this.transform.LookAt(m_target.transform, Vector3.up);
-            
+            {
+                Vector3 dir = m_target.transform.position;
+                dir.y = this.transform.position.y;
+                this.transform.LookAt(dir);
+            }
+
             m_anim.SetBool("Attacking", true);
             m_anim.SetTrigger("Attack");
             m_anim.SetInteger("AttackNum", 0);
@@ -121,8 +125,8 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         }
 
         //パラメータにXYの値を入れる
-        m_anim.SetFloat("X", Mathf.Abs(m_h) + m_dush, 0.3f, Time.deltaTime);
-        m_anim.SetFloat("Y", Mathf.Abs(m_v) + m_dush, 0.3f, Time.deltaTime);
+        m_anim.SetFloat("X", Mathf.Abs(m_h) + m_dush, 0.1f, Time.deltaTime);
+        m_anim.SetFloat("Y", Mathf.Abs(m_v) + m_dush, 0.1f, Time.deltaTime);
     }
 
     void EnemyFocus()
@@ -169,7 +173,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
             m_enemy.TakeDamage(m_attackPower);
             Vector3 dir = (m_enemy.transform.position - this.transform.position).normalized;
             dir.y = 2;
-            m_enemy.m_rb.AddForce(dir * 2, ForceMode.Impulse);
+            m_enemy.m_rb.AddForce(dir * 5, ForceMode.Impulse);
         }
     }
 

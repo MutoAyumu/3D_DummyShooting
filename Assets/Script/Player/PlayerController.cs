@@ -111,7 +111,7 @@ public class PlayerController : MonoBehaviour
     {
         if (m_enemy != null)
         {
-            m_enemy.TakeDamage(m_attackPower);
+            //m_enemy.TakeDamage(m_attackPower);
         }
     }
 

@@ -679,6 +679,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3596748219561930923, guid: ceec30d6df1d996429a61b751737679d,
+        type: 3}
+      propertyPath: m_Drag
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3905046759435051103, guid: ceec30d6df1d996429a61b751737679d,
+        type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316959349219670187, guid: ceec30d6df1d996429a61b751737679d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6316959350223142190, guid: ceec30d6df1d996429a61b751737679d,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -702,12 +717,12 @@ PrefabInstance:
     - target: {fileID: 6371806044753386193, guid: ceec30d6df1d996429a61b751737679d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 0.591
       objectReference: {fileID: 0}
     - target: {fileID: 6371806044753386193, guid: ceec30d6df1d996429a61b751737679d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 6.9320426
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 6371806044753386193, guid: ceec30d6df1d996429a61b751737679d,
         type: 3}
@@ -1025,7 +1040,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh15286
+  m_Name: pb_Mesh18988
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1492,6 +1507,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Size.z
       value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8475081230430355817, guid: 1152da70abfa97b46884597b8fad2357,
+        type: 3}
+      propertyPath: m_Material
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1152da70abfa97b46884597b8fad2357, type: 3}
