@@ -27,7 +27,6 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
             instance = this;
             m_player = GameObject.FindObjectOfType<PlayerMoveController>();
-
         }
     }
 

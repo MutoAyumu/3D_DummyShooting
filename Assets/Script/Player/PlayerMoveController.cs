@@ -25,6 +25,8 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
     [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
     [SerializeField, Tooltip("接地判定のレイヤー")] LayerMask m_groundLayer;
+    [SerializeField, Tooltip("壁判定のレイヤー")] LayerMask m_wallLayer;
+    [SerializeField, Tooltip("Linecastの高さ")] float m_rayHeight = 2;
     [SerializeField, Tooltip("Rayの方向")] Vector3 m_rayDir = Vector3.zero;
     bool isGround;
     [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
@@ -84,7 +86,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         //攻撃のアニメーションを流す
         if (Input.GetButtonDown("Fire1") && isGround)
         {
-            if(m_target)
+            if (m_target)
             {
                 Vector3 dir = m_target.transform.position;
                 dir.y = this.transform.position.y;
@@ -117,8 +119,8 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
             dir.y = m_rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
             m_rb.velocity = dir;   // 計算した速度ベクトルをセットする
         }
-        else if(!m_anim.GetBool("Air"))
-            {
+        else if (!m_anim.GetBool("Air"))
+        {
             Vector3 dir = Vector3.zero;
             dir.y = m_rb.velocity.y;
             m_rb.velocity = dir;
@@ -133,10 +135,27 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     {
         if (m_target != null)
         {
-            m_target.TryGetComponent(out targetCollider);
-            foreach (var smb in m_anim.GetBehaviours<MatchPositionSMB>())
+            var mtf = this.transform.position;
+            mtf.y = m_rayHeight;
+            var etf = m_target.transform.position;
+            etf.y = m_rayHeight;
+            Debug.DrawLine(mtf, etf, Color.red);
+
+            if (!Physics.Linecast(mtf, etf,m_wallLayer))
             {
-                smb.target = this;
+                m_target.TryGetComponent(out targetCollider);
+
+                foreach (var smb in m_anim.GetBehaviours<MatchPositionSMB>())
+                {
+                    smb.target = this;
+                }
+            }
+            else
+            {
+                foreach (var smb in m_anim.GetBehaviours<MatchPositionSMB>())
+                {
+                    smb.target = null;
+                }
             }
         }
         else
@@ -172,7 +191,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         {
             m_enemy.TakeDamage(m_attackPower);
             Vector3 dir = (m_enemy.transform.position - this.transform.position).normalized;
-            dir.y = 2;
+            dir.y = 1;
             m_enemy.m_rb.AddForce(dir * 5, ForceMode.Impulse);
         }
     }

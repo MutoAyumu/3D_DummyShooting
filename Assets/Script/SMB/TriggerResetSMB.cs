@@ -11,5 +11,6 @@ public class TriggerResetSMB : StateMachineBehaviour
     {
         animator.ResetTrigger(m_triggerName);
         animator.SetBool(m_boolName, false);
+        animator.applyRootMotion = false;
     }
 }
