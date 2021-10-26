@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Animator))]
@@ -11,6 +12,8 @@ public class EnemyController : MonoBehaviour
     Animator m_anim;
     [System.NonSerialized]public CapsuleCollider m_collider;
     GameManager m_gmanager;
+    NavMeshAgent m_agent;
+    [SerializeField] PlayerMoveController m_player;
 
     [Header("HP")]
     [SerializeField, Tooltip("HPの値")] float m_hp = 3f;
@@ -26,6 +29,7 @@ public class EnemyController : MonoBehaviour
         m_rb = GetComponent<Rigidbody>();
         m_anim = GetComponent<Animator>();
         m_collider = GetComponent<CapsuleCollider>();
+        m_agent = GetComponent<NavMeshAgent>();
         m_currentHp = m_hp;
         m_hpSlider.value = 1;
     }
@@ -35,7 +39,7 @@ public class EnemyController : MonoBehaviour
     }
     private void Update()
     {
-        
+        m_agent.SetDestination(m_player.transform.position);
     }
     private void LateUpdate()
     {
@@ -52,15 +56,12 @@ public class EnemyController : MonoBehaviour
         }
         else
         {
-            Debug.Log("Death");
             m_currentHp -= damage;
             m_hpSlider.value = m_currentHp / m_hp;
             m_anim.SetTrigger("Death");
-            m_collider.enabled = false;
-            m_rb.useGravity = false;
-            m_rb.isKinematic = true;
             m_gmanager.m_enemysList.Remove(this.gameObject);
             m_gmanager.m_enemysList.Sort();
+            Destroy(this.gameObject);
         }
     }
     private void OnEnable()
