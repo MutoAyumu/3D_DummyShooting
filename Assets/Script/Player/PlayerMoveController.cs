@@ -15,6 +15,8 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     Quaternion m_rotation;
     float m_h;
     float m_v;
+    Vector3 mtf;
+    Vector3 etf;
 
     [Header("動き")]
     [SerializeField, Tooltip("ジャンプの移動値")] float m_jumpMovePower = 5f;
@@ -24,6 +26,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     [SerializeField, Tooltip("回転の滑らかさ")] float rotationSpeed = 7f;
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
     [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
+    [SerializeField, Tooltip("敵との距離指定")] float m_targetDistance = 10;
     [SerializeField, Tooltip("接地判定のレイヤー")] LayerMask m_groundLayer;
     [SerializeField, Tooltip("壁判定のレイヤー")] LayerMask m_wallLayer;
     [SerializeField, Tooltip("Linecastの高さ")] float m_rayHeight = 2;
@@ -86,7 +89,9 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         //攻撃のアニメーションを流す
         if (Input.GetButtonDown("Fire1") && isGround)
         {
-            if (m_target)
+            var distance = (transform.position - m_target.transform.position).sqrMagnitude;
+
+            if (m_target && !Physics.Linecast(mtf, etf, m_wallLayer) && distance <= m_targetDistance * m_targetDistance)
             {
                 Vector3 dir = m_target.transform.position;
                 dir.y = this.transform.position.y;
@@ -135,9 +140,9 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     {
         if (m_target != null)
         {
-            var mtf = this.transform.position;
+            mtf = this.transform.position;
             mtf.y = m_rayHeight;
-            var etf = m_target.transform.position;
+            etf = m_target.transform.position;
             etf.y = m_rayHeight;
             Debug.DrawLine(mtf, etf, Color.red);
 
