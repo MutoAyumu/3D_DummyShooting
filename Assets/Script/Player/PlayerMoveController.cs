@@ -9,7 +9,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     Rigidbody m_rb;
     Animator m_anim;
     Vector3 m_move;
-    EnemyController m_enemy;
+    EnemyAI m_enemy;
     GameManager m_gmanager;
 
     Quaternion m_rotation;
@@ -26,7 +26,6 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     [SerializeField, Tooltip("回転の滑らかさ")] float rotationSpeed = 7f;
     [SerializeField, Tooltip("攻撃力")] float m_attackPower = 1f;
     [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
-    [SerializeField, Tooltip("敵との距離指定")] float m_targetDistance = 10;
     [SerializeField, Tooltip("接地判定のレイヤー")] LayerMask m_groundLayer;
     [SerializeField, Tooltip("壁判定のレイヤー")] LayerMask m_wallLayer;
     [SerializeField, Tooltip("Linecastの高さ")] float m_rayHeight = 2;
@@ -89,14 +88,12 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         //攻撃のアニメーションを流す
         if (Input.GetButtonDown("Fire1") && isGround)
         {
-            var distance = (transform.position - m_target.transform.position).sqrMagnitude;
-
-            if (m_target && !Physics.Linecast(mtf, etf, m_wallLayer) && distance <= m_targetDistance * m_targetDistance)
-            {
-                Vector3 dir = m_target.transform.position;
-                dir.y = this.transform.position.y;
-                this.transform.LookAt(dir);
-            }
+            //if (m_target && !Physics.Linecast(mtf, etf, m_wallLayer))
+            //{
+            //    Vector3 dir = m_target.transform.position;
+            //    dir.y = this.transform.position.y;
+            //    this.transform.LookAt(dir);
+            //}
 
             m_anim.SetBool("Attacking", true);
             m_anim.SetTrigger("Attack");
@@ -208,7 +205,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         //攻撃対象の取得
         if (other.gameObject.CompareTag(m_enemyTag))
         {
-            m_enemy = other.gameObject.GetComponent<EnemyController>();
+            m_enemy = other.gameObject.GetComponent<EnemyAI>();
         }
 
     }

@@ -51,6 +51,15 @@ public class MatchPositionSMB : StateMachineBehaviour
             }
         }
     }
+    public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        if (target != null)
+        {
+            Vector3 dir = target.TargetPosition;
+            dir.y = animator.transform.position.y;
+            animator.transform.LookAt(dir);
+        }
+    }
 }
 
 public interface IMatchTarget

@@ -1,23 +1,37 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class EnemyAI : MonoBehaviour
 {
     Animator m_anim;
     NavMeshAgent m_agent;
 
-    [SerializeField]EnemyAiState m_aiState = EnemyAiState.Wait;
+    [System.NonSerialized] public Rigidbody m_rb;
+    [System.NonSerialized] public CapsuleCollider m_collider;
+    GameManager m_gmanager;
+
+    [SerializeField, Tooltip("HPの値")] float m_hp = 3f;
+    float m_currentHp;
+    [SerializeField, Tooltip("HPを表示するスライダー")] Slider m_hpSlider = default;
+    [SerializeField, Tooltip("遷移の時間")] float m_transitionTime = 1f;
+    EnemyAiState m_aiState = EnemyAiState.Wait;
     PlayerMoveController m_player;
-    [SerializeField] SphereCollider m_searchColloder;
-    [SerializeField] float m_angle = 90f;
+    bool isOn;
 
     private void Awake()
     {
         m_agent = GetComponent<NavMeshAgent>();
         m_anim = GetComponent<Animator>();
+        m_rb = GetComponent<Rigidbody>();
+        m_gmanager = GameObject.FindObjectOfType<GameManager>();
+        m_collider = GetComponent<CapsuleCollider>();
+        m_currentHp = m_hp;
+        m_hpSlider.value = 1;
     }
     private void Start()
     {
@@ -37,6 +51,22 @@ public class EnemyAI : MonoBehaviour
     }
     void MainRoutine()
     {
+        if (m_player)
+        {
+            if (m_agent.remainingDistance <= m_agent.stoppingDistance)
+            {
+                m_anim.SetTrigger("Attack");
+            }
+        }
+
+        if (m_anim.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
+        {
+            m_agent.isStopped = true;
+        }
+        else
+        {
+            m_agent.isStopped = false;
+        }
 
     }
     void UpdateAI()
@@ -57,13 +87,18 @@ public class EnemyAI : MonoBehaviour
                 break;
         }
     }
+    private void LateUpdate()
+    {
+        m_hpSlider.transform.rotation = Camera.main.transform.rotation;
+    }
     void Wait()
     {
 
     }
     void Move()
     {
-        m_agent.SetDestination(m_player.transform.position);
+        if (m_player)
+            m_agent.SetDestination(m_player.transform.position);
     }
     void Attack()
     {
@@ -73,33 +108,55 @@ public class EnemyAI : MonoBehaviour
     {
 
     }
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("Player"))
+        if (other.gameObject.CompareTag("Player") && !isOn)
         {
+            isOn = true;
             m_player = other.GetComponent<PlayerMoveController>();
+            m_anim.SetTrigger("IsStarted");
+            this.transform.LookAt(m_player.transform);
+            StartCoroutine(StartMotion());
+        }
+    }
+    IEnumerator StartMotion()
+    {
+        yield return new WaitForSeconds(3);
+        m_anim.SetTrigger("IsMove");
+        m_aiState = EnemyAiState.Move;
+    }
+    public void TakeDamage(float damage)
+    {
+        m_anim.Play("Damage");
+        DOTween.To(() => m_currentHp, x => m_hpSlider.value = x / m_hp, m_currentHp - damage, m_transitionTime);
+        m_currentHp -= damage;
 
-            var playerDirection = other.transform.position - transform.position;
-            //　敵の前方からの主人公の方向
-            var angle = Vector3.Angle(transform.forward, playerDirection);
-            //　サーチする角度内だったら発見
-            if (angle <= m_angle)
-            {
-                m_aiState = EnemyAiState.Move;
-            }
-        }
-    }
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.CompareTag("Player"))
+        if (m_anim.GetCurrentAnimatorStateInfo(0).IsName("Damage"))
         {
-            m_player = null;
-            m_aiState = EnemyAiState.Idle;
+            m_agent.isStopped = true;
+        }
+        else
+        {
+            m_agent.isStopped = false;
+        }
+
+
+        if (m_currentHp <= 0)
+        {
+            DOTween.To(() => m_currentHp, x => m_hpSlider.value = x / m_hp, m_currentHp - damage, m_transitionTime);
+            Destroy(this.gameObject);
+            m_gmanager.m_enemysList.Remove(this.gameObject);
+            m_gmanager.m_enemysList.Sort();
         }
     }
-    private void OnDrawGizmos()
+    private void OnEnable()
     {
-        Handles.color = Color.red;
-        Handles.DrawSolidArc(transform.position, Vector3.up, Quaternion.Euler(0f, -m_angle, 0f) * transform.forward, m_angle * 2f, m_searchColloder.radius);
+        if (m_gmanager)
+            m_gmanager.m_enemysList.Add(this.gameObject);
+    }
+    private void OnDisable()
+    {
+        m_gmanager.m_enemysList.Remove(this.gameObject);
+        m_gmanager.m_enemysList.Sort();
     }
 }

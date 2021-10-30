@@ -40,7 +40,7 @@ public class EnemyController : MonoBehaviour
     {
         m_currentHp -= damage;
 
-        if (m_currentHp > 1)
+        if (m_currentHp > 0)
         {
             DOTween.To(() => m_currentHp, x => m_hpSlider.value = x / m_hp, m_currentHp - damage, m_transitionTime);
             m_anim.SetTrigger("TakeDamage");
@@ -51,7 +51,7 @@ public class EnemyController : MonoBehaviour
             m_anim.SetTrigger("Death");
             m_gmanager.m_enemysList.Remove(this.gameObject);
             m_gmanager.m_enemysList.Sort();
-            Destroy(this.gameObject);
+            Destroy(this.gameObject, 2);
         }
     }
     private void OnEnable()
