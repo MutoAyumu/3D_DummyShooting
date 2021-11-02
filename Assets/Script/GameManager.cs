@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 {
     [HideInInspector]public List<GameObject> m_enemysList;
     PlayerMoveController m_player;
+    bool isDead = false;
 
     static GameManager instance = null;
 
@@ -15,6 +16,11 @@ public class GameManager : MonoBehaviour
     //    get { return m_enemysList; }
     //    set { m_enemysList = value; }
     //}
+
+    public bool Dead
+    {
+        set { isDead = value; }
+    }
 
     private void Awake()
     {
@@ -32,24 +38,33 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (m_enemysList.Count != 0)
+        var isOn = Input.GetKeyDown(KeyCode.K);
+        
+        if (isOn || isDead)
         {
-            GameObject enemy = default;
-            enemy = m_enemysList[0];
+            Debug.Log(m_enemysList.Count);
 
-            enemy = m_enemysList.OrderBy(go => Vector3.Distance(m_player.transform.position, go.transform.position)).FirstOrDefault();
+            if (m_enemysList.Count != 0)
+            {
+                GameObject enemy = default;
+                enemy = m_enemysList[0];
 
-            if (m_player)
-            {
-                m_player.m_target = enemy;
+                enemy = m_enemysList.OrderBy(go => Vector3.Distance(m_player.transform.position, go.transform.position)).FirstOrDefault();
+
+                if (m_player)
+                {
+                    m_player.m_target = enemy;
+                }
             }
-        }
-        else
-        {
-            if (m_player)
+            else
             {
-                m_player.m_target = null;
+                if (m_player)
+                {
+                    m_player.m_target = null;
+                }
             }
+
+            isDead = false;
         }
     }
 }

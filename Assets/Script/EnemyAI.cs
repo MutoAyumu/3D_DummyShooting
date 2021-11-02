@@ -146,7 +146,7 @@ public class EnemyAI : MonoBehaviour
             DOTween.To(() => m_currentHp, x => m_hpSlider.value = x / m_hp, m_currentHp - damage, m_transitionTime);
             Destroy(this.gameObject);
             m_gmanager.m_enemysList.Remove(this.gameObject);
-            m_gmanager.m_enemysList.Sort();
+            m_gmanager.Dead = true;
         }
     }
     private void OnEnable()
@@ -157,6 +157,5 @@ public class EnemyAI : MonoBehaviour
     private void OnDisable()
     {
         m_gmanager.m_enemysList.Remove(this.gameObject);
-        m_gmanager.m_enemysList.Sort();
     }
 }
