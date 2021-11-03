@@ -200,7 +200,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
 
     public Vector3 TargetPosition => targetCollider.ClosestPoint(transform.position);
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         //攻撃対象の取得
         if (other.gameObject.CompareTag(m_enemyTag))
