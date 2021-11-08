@@ -15,7 +15,7 @@ public class EnemyAI : MonoBehaviour
     [System.NonSerialized] public CapsuleCollider m_collider;
     GameManager m_gmanager;
 
-    [SerializeField, Tooltip("HPの値")] float m_hp = 3f;
+    [SerializeField]EnemyStatus m_status = default;
     float m_currentHp;
     [SerializeField, Tooltip("HPを表示するスライダー")] Slider m_hpSlider = default;
     [SerializeField, Tooltip("遷移の時間")] float m_transitionTime = 1f;
@@ -30,7 +30,7 @@ public class EnemyAI : MonoBehaviour
         m_rb = GetComponent<Rigidbody>();
         m_gmanager = GameObject.FindObjectOfType<GameManager>();
         m_collider = GetComponent<CapsuleCollider>();
-        m_currentHp = m_hp;
+        m_currentHp = m_status.HP;
         m_hpSlider.value = 1;
     }
     private void Start()
@@ -128,7 +128,7 @@ public class EnemyAI : MonoBehaviour
     public void TakeDamage(float damage)
     {
         m_anim.Play("Damage");
-        DOTween.To(() => m_currentHp, x => m_hpSlider.value = x / m_hp, m_currentHp - damage, m_transitionTime);
+        DOTween.To(() => m_currentHp, x => m_hpSlider.value = x / m_status.HP, m_currentHp - damage, m_transitionTime);
         m_currentHp -= damage;
 
         if (m_anim.GetCurrentAnimatorStateInfo(0).IsName("Damage"))
@@ -143,7 +143,7 @@ public class EnemyAI : MonoBehaviour
 
         if (m_currentHp <= 0)
         {
-            DOTween.To(() => m_currentHp, x => m_hpSlider.value = x / m_hp, m_currentHp - damage, m_transitionTime);
+            DOTween.To(() => m_currentHp, x => m_hpSlider.value = x / m_status.HP, m_currentHp - damage, m_transitionTime);
             Destroy(this.gameObject);
             m_gmanager.m_enemysList.Remove(this.gameObject);
             m_gmanager.Dead = true;
