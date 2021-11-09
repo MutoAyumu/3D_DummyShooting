@@ -15,7 +15,7 @@ public class EnemyAI : MonoBehaviour
     [System.NonSerialized] public CapsuleCollider m_collider;
     GameManager m_gmanager;
 
-    [SerializeField]EnemyStatus m_status = default;
+    [SerializeField] EnemyStatus m_status = default;
     float m_currentHp;
     [SerializeField, Tooltip("HPを表示するスライダー")] Slider m_hpSlider = default;
     [SerializeField, Tooltip("遷移の時間")] float m_transitionTime = 1f;
@@ -51,23 +51,8 @@ public class EnemyAI : MonoBehaviour
     }
     void MainRoutine()
     {
-        if (m_player)
-        {
-            if (m_agent.remainingDistance <= m_agent.stoppingDistance)
-            {
-                m_anim.SetTrigger("Attack");
-            }
-        }
-
-        if (m_anim.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
-        {
-            m_agent.isStopped = true;
-        }
-        else
-        {
-            m_agent.isStopped = false;
-        }
-
+        m_player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMoveController>();
+        m_agent.SetDestination(m_player.transform.position);
     }
     void UpdateAI()
     {
@@ -98,32 +83,35 @@ public class EnemyAI : MonoBehaviour
     void Move()
     {
         if (m_player)
-            m_agent.SetDestination(m_player.transform.position);
+        {
+            if (m_agent.remainingDistance <= m_agent.stoppingDistance)
+            {
+                m_agent.isStopped = true;
+                m_anim.SetTrigger("Attack");
+                m_aiState = EnemyAiState.Attack;
+            }
+        }
     }
     void Attack()
     {
-
+        if (!m_anim.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
+        {
+            m_agent.isStopped = false;
+            m_aiState = EnemyAiState.Move;
+        }
     }
     void Idle()
     {
 
     }
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Player") && !isOn)
-        {
-            isOn = true;
-            m_player = other.GetComponent<PlayerMoveController>();
-            m_anim.SetTrigger("IsStarted");
-            this.transform.LookAt(m_player.transform);
-            StartCoroutine(StartMotion());
-        }
-    }
+
     IEnumerator StartMotion()
     {
-        yield return new WaitForSeconds(3);
+        float waitTime = 3;
+        yield return new WaitForSeconds(waitTime);
         m_anim.SetTrigger("IsMove");
         m_aiState = EnemyAiState.Move;
+        m_agent.isStopped = false;
     }
     public void TakeDamage(float damage)
     {
@@ -153,6 +141,16 @@ public class EnemyAI : MonoBehaviour
     {
         if (m_gmanager)
             m_gmanager.m_enemysList.Add(this.gameObject);
+
+        if (!isOn)
+        {
+            isOn = true;
+            m_player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMoveController>();
+            m_agent.isStopped = true;
+            m_anim.SetTrigger("IsStarted");
+            this.transform.LookAt(m_player.transform);
+            StartCoroutine(StartMotion());
+        }
     }
     private void OnDisable()
     {
