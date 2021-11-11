@@ -194,7 +194,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
             m_enemy.TakeDamage(m_attackPower);
             Vector3 dir = (m_enemy.transform.position - this.transform.position).normalized;
             dir.y = 1;
-            m_enemy.m_rb.AddForce(dir * 5, ForceMode.Impulse);
+            m_enemy.m_rb.AddForce(dir * 10, ForceMode.Impulse);
         }
     }
 
