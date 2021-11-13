@@ -214,7 +214,7 @@ CharacterJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: -0.18058306, y: 0.04183238, z: 0.9826697}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -0.4369922, y: 0.0000014918621, z: -0.0000002782326}
+  m_ConnectedAnchor: {x: -0.43699226, y: 0.0000015071125, z: -0.000000039581206}
   serializedVersion: 2
   m_SwingAxis: {x: -0.9580885, y: 0.2184189, z: -0.18536396}
   m_TwistLimitSpring:
@@ -322,7 +322,7 @@ CharacterJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 0.13400677, y: -0.04877421, z: 0.9897794}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -0.39293927, y: -0.0000023499013, z: 0.0000005364418}
+  m_ConnectedAnchor: {x: -0.3929393, y: -0.0000023531609, z: 0.0000003054738}
   serializedVersion: 2
   m_SwingAxis: {x: 0.2194432, y: 0.9754526, z: 0.01835765}
   m_TwistLimitSpring:
@@ -633,7 +633,7 @@ CharacterJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: -0.14206214, y: -0.013593033, z: 0.98976445}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -0.016426861, y: 0.044787526, z: -0.08392091}
+  m_ConnectedAnchor: {x: -0.016426742, y: 0.044787526, z: -0.08392091}
   serializedVersion: 2
   m_SwingAxis: {x: 0.011183597, y: 0.9998199, z: 0.015336295}
   m_TwistLimitSpring:
@@ -943,7 +943,7 @@ CharacterJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 0.18094987, y: -0.041824587, z: 0.9826026}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -0.43700296, y: -0.000001067994, z: 0.00000012409873}
+  m_ConnectedAnchor: {x: -0.43700302, y: -0.0000010526272, z: -0.00000011478551}
   serializedVersion: 2
   m_SwingAxis: {x: -0.95802885, y: 0.21837783, z: 0.18571977}
   m_TwistLimitSpring:
@@ -1750,6 +1750,7 @@ GameObject:
   m_Component:
   - component: {fileID: 905036041650948983}
   - component: {fileID: 7063146963395634701}
+  - component: {fileID: 988822743}
   m_Layer: 0
   m_Name: ZombieRagdoll
   m_TagString: Untagged
@@ -1792,6 +1793,36 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &988822743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4239027051871418724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c01b7cbbe1684bb49aa86caf5672b71a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_childrens:
+  - {fileID: 8800847381804925035}
+  - {fileID: 3384845009004745625}
+  - {fileID: 3907200190774388643}
+  - {fileID: 1672329789722610722}
+  - {fileID: 7173984046124712186}
+  - {fileID: 1946782515433943008}
+  - {fileID: 4185900408353648458}
+  - {fileID: 7757273667040981955}
+  - {fileID: 5044070938261617}
+  - {fileID: 8860032749610168109}
+  - {fileID: 8174466343593222340}
+  - {fileID: 4460342933316776151}
+  - {fileID: 8589874486461852766}
+  - {fileID: 2479613237065412926}
+  - {fileID: 7902291035156633882}
+  m_power: 20
+  m_direction: {x: 0, y: 1, z: -1}
 --- !u!1 &4375973529413648819
 GameObject:
   m_ObjectHideFlags: 0
@@ -2686,7 +2717,7 @@ CharacterJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: -0.0000002682209, y: -0.02204337, z: -0.2592007}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -0.30387643, y: -0.036871932, z: 0.17756376}
+  m_ConnectedAnchor: {x: -0.30387643, y: -0.036871932, z: 0.17756352}
   serializedVersion: 2
   m_SwingAxis: {x: 0.20429578, y: 0.97538835, z: -0.08295083}
   m_TwistLimitSpring:
