@@ -14,9 +14,9 @@ public class GrapplingWire : MonoBehaviour
     [SerializeField, Tooltip("プレイヤーの位置")] Transform m_playerPos = default;
     [SerializeField, Tooltip("Anchorの位置")] GameObject m_anchor = default;
     [SerializeField, Tooltip("springJointコンポーネントをセット")] SpringJoint m_joint = default;
-    [SerializeField, Tooltip("Rayを飛ばす方向")] Vector3 m_direction = Vector3.zero;
     [SerializeField, Tooltip("ターゲットのレイヤー")] LayerMask m_targetLayer = default;
     [SerializeField, Tooltip("壁のレイヤー")] LayerMask m_wallLayer = default;
+    [SerializeField] float m_float;
 
     private void Start()
     {
@@ -27,6 +27,11 @@ public class GrapplingWire : MonoBehaviour
         Selected();
         if (Input.GetButtonDown("Fire2"))
             Grapple();
+
+        if (m_joint.minDistance >= Vector3.Distance(m_playerPos.position, m_anchor.transform.position))
+        {
+            m_anchor.SetActive(false);
+        }
     }
     void Selected()
     {
@@ -42,19 +47,9 @@ public class GrapplingWire : MonoBehaviour
     {
         if (m_hitTarget)
         {
-            //var line = Physics.Linecast(m_playerPos.position, m_direction, m_wallLayer);
+            m_anchor.SetActive(true);
+            m_anchor.transform.position = m_hitTarget.transform.position;
 
-            //if(!line)
-            //{
-                //Physics.Raycast(m_playerPos.position, m_direction, out m_hitPos, m_direction.magnitude,  m_wallLayer);
-                m_anchor.SetActive(true);
-                m_anchor.transform.position = m_hitTarget.transform.position;
-
-                if (m_joint.minDistance >= Vector3.Distance(m_playerPos.position, m_anchor.transform.position))
-                {
-                    m_anchor.SetActive(false);
-                }
-            //}
             foreach (var a in m_targets)
                 a.GetComponent<Renderer>().material.color = Color.white;
             m_hitTarget.GetComponent<Renderer>().material.color = Color.red;

@@ -33,6 +33,10 @@ public class MatchPositionSMB : StateMachineBehaviour
             isSkip = Vector3.Distance(target.TargetPosition, animator.rootPosition) > assistDistance;
         }
     }
+    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        animator.applyRootMotion = false;
+    }
 
     public override void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -53,6 +57,8 @@ public class MatchPositionSMB : StateMachineBehaviour
     }
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        animator.applyRootMotion = true;
+
         if (target != null)
         {
             Vector3 dir = target.TargetPosition;

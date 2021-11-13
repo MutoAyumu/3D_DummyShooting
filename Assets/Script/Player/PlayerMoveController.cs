@@ -15,11 +15,14 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     Quaternion m_rotation;
     float m_h;
     float m_v;
+    float m_speed;
     Vector3 mtf;
     Vector3 etf;
 
     [Header("動き")]
     [SerializeField, Tooltip("ジャンプの移動値")] float m_jumpMovePower = 5f;
+    [SerializeField, Tooltip("移動の値")] float m_movePower = 5f;
+    [SerializeField, Tooltip("ダッシュの値")] float m_dashPower = 7f;
     float m_dush;
     [Space(10)]
     [Header("各種設定")]
@@ -46,7 +49,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
 
     private void Start()
     {
-
+        m_speed = m_movePower;
     }
     private void Update()
     {
@@ -80,21 +83,20 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         // 入力方向のベクトルを組み立てる
         m_move = Vector3.forward * m_v + Vector3.right * m_h;
 
-        if (Input.GetButton("Shift") && (m_h != 0 || m_v != 0))
+        if (Input.GetButton("Shift") && (m_h != 0 || m_v != 0) && isGround)
+        {
+            m_speed = m_dashPower;
             m_dush = 1;
+        }
         else
+        {
+            m_speed = m_movePower;
             m_dush = 0;
+        }
 
         //攻撃のアニメーションを流す
         if (Input.GetButtonDown("Fire1") && isGround)
         {
-            //if (m_target && !Physics.Linecast(mtf, etf, m_wallLayer))
-            //{
-            //    Vector3 dir = m_target.transform.position;
-            //    dir.y = this.transform.position.y;
-            //    this.transform.LookAt(dir);
-            //}
-
             m_anim.SetBool("Attacking", true);
             m_anim.SetTrigger("Attack");
             m_anim.SetInteger("AttackNum", 0);
@@ -117,7 +119,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
             Quaternion targetRotation = Quaternion.LookRotation(m_move);
             this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);  // Slerp を使うのがポイント
 
-            Vector3 dir = m_move.normalized * m_jumpMovePower; // 入力した方向に移動する
+            Vector3 dir = m_move.normalized * m_speed; // 入力した方向に移動する
             dir.y = m_rb.velocity.y;   // ジャンプした時の y 軸方向の速度を保持する
             m_rb.velocity = dir;   // 計算した速度ベクトルをセットする
         }
@@ -178,12 +180,10 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         if (isGround)
         {
             m_anim.SetBool("Air", false);
-            m_anim.applyRootMotion = true;
         }
         else
         {
             m_anim.SetBool("Air", true);
-            m_anim.applyRootMotion = false;
         }
     }
 
