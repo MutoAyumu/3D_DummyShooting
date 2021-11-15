@@ -85,7 +85,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_triggerName: Attack
-  m_boolName: 
 --- !u!1102 &-7060176962290151720
 AnimatorState:
   serializedVersion: 5

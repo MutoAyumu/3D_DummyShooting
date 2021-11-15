@@ -1821,8 +1821,8 @@ MonoBehaviour:
   - {fileID: 8589874486461852766}
   - {fileID: 2479613237065412926}
   - {fileID: 7902291035156633882}
-  m_power: 20
-  m_direction: {x: 0, y: 1, z: -1}
+  m_maxPower: 20
+  m_direction: {x: 0, y: 1, z: 1}
 --- !u!1 &4375973529413648819
 GameObject:
   m_ObjectHideFlags: 0

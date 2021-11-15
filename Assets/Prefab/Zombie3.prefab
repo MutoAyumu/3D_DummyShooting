@@ -693,10 +693,11 @@ GameObject:
   m_Component:
   - component: {fileID: 2130587969906808238}
   - component: {fileID: 6407472964439610086}
-  - component: {fileID: 1229164803842774544}
   - component: {fileID: 8296172669236623800}
   - component: {fileID: 8296172669236623801}
   - component: {fileID: 8296172669236623802}
+  - component: {fileID: 1423595652}
+  - component: {fileID: 1423595653}
   m_Layer: 10
   m_Name: Zombie3
   m_TagString: Enemy
@@ -712,7 +713,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3155342875027498941}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 33, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4567507825801489685}
@@ -740,21 +741,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &1229164803842774544
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3155342875027498941}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9888990ef3dc0e945abbb77c28da0b1a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_status: {fileID: 11400000, guid: 8373b35105994894ab2915f823530c6c, type: 2}
-  m_hpSlider: {fileID: 3040809128647509099}
-  m_transitionTime: 1
 --- !u!54 &8296172669236623800
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -807,6 +793,36 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &1423595652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3155342875027498941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef6323aafd015ee46bcefc9854a43757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aiState: 0
+--- !u!114 &1423595653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3155342875027498941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab6280cd1745a8d498a0279d8b839634, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_status: {fileID: 11400000, guid: 8373b35105994894ab2915f823530c6c, type: 2}
+  m_hpSlider: {fileID: 3040809128647509099}
+  m_transitionTime: 1
+  m_ragdoll: {fileID: 4239027051871418724, guid: ea62ea92b5131ad419503d765bdd19de,
+    type: 3}
 --- !u!1 &3242431286166053279
 GameObject:
   m_ObjectHideFlags: 0

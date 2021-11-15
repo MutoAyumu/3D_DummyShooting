@@ -9,7 +9,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     Rigidbody m_rb;
     Animator m_anim;
     Vector3 m_move;
-    EnemyAI m_enemy;
+    HpController m_enemy;
     GameManager m_gmanager;
 
     Quaternion m_rotation;
@@ -192,9 +192,6 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         if (m_enemy != null)
         {
             m_enemy.TakeDamage(m_attackPower);
-            Vector3 dir = (m_enemy.transform.position - this.transform.position).normalized;
-            dir.y = 1;
-            m_enemy.m_rb.AddForce(dir * 10, ForceMode.Impulse);
         }
     }
 
@@ -205,7 +202,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         //攻撃対象の取得
         if (other.gameObject.CompareTag(m_enemyTag))
         {
-            m_enemy = other.gameObject.GetComponent<EnemyAI>();
+            m_enemy = other.gameObject.GetComponent<HpController>();
         }
 
     }

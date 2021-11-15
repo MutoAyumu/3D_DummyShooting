@@ -9,7 +9,7 @@ public class LiftScript : MonoBehaviour
     [SerializeField, Tooltip("移動先を切り替えるときのポイントとの距離")] float m_stopDistance = 0.2f;
 
     Vector3 m_move;
-    Rigidbody m_rb;
+    //Rigidbody m_rb;
     int m_count;
 
     private void Awake()
