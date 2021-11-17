@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UI;
 
 public class GrapplingWire : MonoBehaviour
 {
@@ -16,11 +17,13 @@ public class GrapplingWire : MonoBehaviour
     [SerializeField, Tooltip("springJointコンポーネントをセット")] SpringJoint m_joint = default;
     [SerializeField, Tooltip("ターゲットのレイヤー")] LayerMask m_targetLayer = default;
     [SerializeField, Tooltip("壁のレイヤー")] LayerMask m_wallLayer = default;
+    [SerializeField, Tooltip("ロックオンImage")] Image m_image = default;
     [SerializeField] float m_float;
 
     private void Start()
     {
         m_anchor.SetActive(false);
+        m_image.enabled = false;
     }
     private void Update()
     {
@@ -31,7 +34,12 @@ public class GrapplingWire : MonoBehaviour
         if (m_joint.minDistance >= Vector3.Distance(m_playerPos.position, m_anchor.transform.position))
         {
             m_anchor.SetActive(false);
+            m_image.enabled = false;
         }
+    }
+    private void LateUpdate()
+    {
+        m_image.transform.rotation = Camera.main.transform.rotation;
     }
     void Selected()
     {
@@ -49,10 +57,8 @@ public class GrapplingWire : MonoBehaviour
         {
             m_anchor.SetActive(true);
             m_anchor.transform.position = m_hitTarget.transform.position;
-
-            foreach (var a in m_targets)
-                a.GetComponent<Renderer>().material.color = Color.white;
-            m_hitTarget.GetComponent<Renderer>().material.color = Color.red;
+            m_image.enabled = true;
+            m_image.transform.position = m_hitTarget.transform.position;
         }
     }
 }
