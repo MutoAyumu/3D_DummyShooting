@@ -37,6 +37,18 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
     [SerializeField] public GameObject m_target;
     Collider targetCollider;
+    [Space(10)]
+    [Header("LookAtIK")]
+    /// <summary>どれくらい見るか</summary>
+    [SerializeField, Range(0f, 1f)] float _weight = 0;
+    /// <summary>身体をどれくらい向けるか</summary>
+    [SerializeField, Range(0f, 1f)] float _bodyWeight = 0;
+    /// <summary>頭をどれくらい向けるか</summary>
+    [SerializeField, Range(0f, 1f)] float _headWeight = 0;
+    /// <summary>目をどれくらい向けるか</summary>
+    [SerializeField, Range(0f, 1f)] float _eyesWeight = 0;
+    /// <summary>関節の動きをどれくらい制限するか</summary>
+    [SerializeField, Range(0f, 1f)] float _clampWeight = 0;
 
     private void Awake()
     {
@@ -212,6 +224,15 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         if (other.gameObject.CompareTag(m_enemyTag))
         {
             m_enemy = default;
+        }
+    }
+    void OnAnimatorIK(int layerIndex)
+    {
+        if (m_target)
+        {
+            // LookAt の重みとターゲットを指定する
+            m_anim.SetLookAtWeight(_weight, _bodyWeight, _headWeight, _eyesWeight, _clampWeight);
+            m_anim.SetLookAtPosition(m_target.transform.position);
         }
     }
 }
