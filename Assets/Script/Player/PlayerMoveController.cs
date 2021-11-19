@@ -31,8 +31,8 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     [SerializeField, Tooltip("ダメージを与える敵のタグ")] string m_enemyTag = "Enemy";
     [SerializeField, Tooltip("接地判定のレイヤー")] LayerMask m_groundLayer;
     [SerializeField, Tooltip("壁判定のレイヤー")] LayerMask m_wallLayer;
-    [SerializeField, Tooltip("Linecastの高さ")] float m_rayHeight = 2;
-    [SerializeField, Tooltip("Rayの方向")] Vector3 m_rayDir = Vector3.zero;
+    [SerializeField, Tooltip("Linecastのオフセット")] Vector3 m_rayOffset = Vector3.zero;
+    [SerializeField, Tooltip("GroundRayの方向")] Vector3 m_rayDir = Vector3.zero;
     bool isGround;
     [SerializeField, Tooltip("マウスカーソルの表示非表示")] bool m_mouseCursor;
     [SerializeField] public GameObject m_target;
@@ -151,10 +151,8 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
     {
         if (m_target != null)
         {
-            mtf = this.transform.position;
-            mtf.y = m_rayHeight;
-            etf = m_target.transform.position;
-            etf.y = m_rayHeight;
+            mtf = this.transform.position + m_rayOffset;
+            etf = m_target.transform.position + m_rayOffset;
             Debug.DrawLine(mtf, etf, Color.red);
 
             if (!Physics.Linecast(mtf, etf,m_wallLayer))
