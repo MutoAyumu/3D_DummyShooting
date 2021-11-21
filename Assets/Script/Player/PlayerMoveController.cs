@@ -230,7 +230,7 @@ public class PlayerMoveController : MonoBehaviour, IMatchTarget
         {
             // LookAt の重みとターゲットを指定する
             m_anim.SetLookAtWeight(_weight, _bodyWeight, _headWeight, _eyesWeight, _clampWeight);
-            m_anim.SetLookAtPosition(m_target.transform.position);
+            m_anim.SetLookAtPosition(m_target.transform.position + m_rayOffset);
         }
     }
 }

@@ -16,12 +16,12 @@ public class EnemyAiBase : MonoBehaviour
         Idle,       //停止
     }
     /// <summary>基本処理</summary>
-    protected virtual void MainRoutine()
+    public virtual void MainRoutine()
     {
 
     }
     /// <summary></summary>
-    protected virtual void UpdateAI()
+    public virtual void UpdateAI()
     {
         switch (AiState)
         {
@@ -41,22 +41,22 @@ public class EnemyAiBase : MonoBehaviour
     }
 
     /// <summary>一時停止の処理</summary>
-    protected virtual void Wait()
+    public virtual void Wait()
     {
 
     }
     /// <summary>動作の処理</summary>
-    protected virtual void Move()
+    public virtual void Move()
     {
 
     }
     /// <summary>攻撃の処理</summary>
-    protected virtual void Attack()
+    public virtual void Attack()
     {
 
     }
     /// <summary>待機処理</summary>
-    protected virtual void Idle()
+    public virtual void Idle()
     {
 
     }

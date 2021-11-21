@@ -34,16 +34,16 @@ public class ZombieScript : EnemyAiBase
         MainRoutine();
         UpdateAI();
     }
-    protected override void MainRoutine()
+    public override void MainRoutine()
     {
         m_player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMoveController>();
         m_agent.SetDestination(m_player.transform.position);
     }
-    protected override void Wait()
+    public override void Wait()
     {
 
     }
-    protected override void Move()
+    public override void Move()
     {
         if (m_player)
         {
@@ -55,7 +55,7 @@ public class ZombieScript : EnemyAiBase
             }
         }
     }
-    protected override void Attack()
+    public override void Attack()
     {
         if (!m_anim.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
         {
@@ -63,7 +63,7 @@ public class ZombieScript : EnemyAiBase
             AiState = EnemyAiState.Move;
         }
     }
-    protected override void Idle()
+    public override void Idle()
     {
 
     }
